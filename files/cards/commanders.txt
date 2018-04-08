@@ -1,0 +1,24 @@
+Zur the Enchanter	{1}{W}{U}{B}
+Legendary Creature — Human Wizard
+Flying
+Whenever Zur the Enchanter attacks, you may search your library for an enchantment card with converted mana cost 3 or less and put it onto the battlefield. If you do, shuffle your library.
+1/4
+
+Isperia, Supreme Judge	{2}{W}{W}{U}{U}
+Legendary Creature — Sphinx
+Flying
+Whenever a creature attacks you or a planeswalker you control, you may draw a card.
+6/4
+
+Atraxa, Praetors' Voice	{G}{W}{U}{B}
+Legendary Creature — Angel Horror
+Flying, vigilance, deathtouch, lifelink
+At the beginning of your end step, proliferate. (You choose any number of permanents and/or players with counters on them, then give each another counter of a kind already there.)
+4/4
+
+Tolsimir Wolfblood	{4}{G}{W}
+Legendary Creature — Elf Warrior
+Other green creatures you control get +1/+1.
+Other white creatures you control get +1/+1.
+{T}: Create a legendary 2/2 green and white Wolf creature token named Voja.
+3/4
