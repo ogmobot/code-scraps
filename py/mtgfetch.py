@@ -19,19 +19,30 @@ def get_card(cardname):
             card = None
     return card
 
-def format_card(card):
+def format_card(raw_card):
     '''Writes the name, mana cost, type, and oracle text of a card.'''
-    output_text = ""
-    output_text += "{}".format(card["name"])
-    if "mana_cost" in card:
-        output_text += "\t{}".format(card["mana_cost"])
-    output_text += "\n{}".format(card["type_line"])
-    if "oracle_text" in card:
-        output_text += "\n{}".format(card["oracle_text"])
-    if "power" in card:
-        output_text += "\n{}/{}".format(card["power"], card["toughness"])
-    return output_text
-
+    if "card_faces" in raw_card:
+      faces = raw_card.get("card_faces", [])
+    else:
+      faces = [raw_card]
+    results = []
+    for card in faces:
+        output_text = ""
+        output_text += "{}".format(card["name"])
+        if "mana_cost" in card:
+            output_text += "\t{}".format(card["mana_cost"])
+        output_text += "\n{}".format(card["type_line"])
+        if "oracle_text" in card:
+            output_text += "\n{}".format(card["oracle_text"])
+        if "power" in card:
+            output_text += "\n{}/{}".format(card["power"], card["toughness"])
+        if "loyalty" in card:
+            output_text += "\n{}".format(card["loyalty"])
+        # Known bug: Scryfall doesn't record the starting loyalty
+        #     of the planeswalkers printed in Magic Origins.
+        results.append(output_text)
+    return "\n//\n".join(results)
+    
 def interactive(s="", output_file=sys.stdout):
     '''Interactive or command-line argument mode.'''
     if not s:
