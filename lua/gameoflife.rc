@@ -1,24 +1,29 @@
--- Conway's Game of Life
+CYCLES=100
+GRIDSIZE=24
+LIVECELL=" #"
+DEADCELL=" ."
+DELAYTIME=0.2
 
---[[
+-- Conway's Game of Life
+---[[
 Simulation{
-    {[3]=true}, -- dead cells with these states come to life
-    {[2]=true, [3]=true}, -- live cells with these states stay alive
+    {3},    -- dead cells with these states live
+    {2, 3}, -- live cells with these states live
 }
 --]]
 
 -- High Life
----[[
+--[[
 Simulation{
-    {[3]=true, [6]=true},
-    {[2]=true, [3]=true},
+    {3, 6},
+    {2, 3},
 }
 --]]
 
 -- Inverter
 --[[
 Simulation{
-    {[1]=true,[2]=true,[3]=true,[4]=true,[5]=true,[6]=true,[7]=true,[8]=true,[9]=true},
+    {1, 2, 3, 4, 5, 6, 7, 8, 9},
     {},
 }
 --]]

@@ -12,9 +12,19 @@
 LIVECELL = " #"
 DEADCELL = " ."
 GRIDSIZE = 20
+CYCLES = 100
+DELAYTIME = 0.2
 
 sleep = function (seconds)
     os.execute("sleep " .. tostring(seconds))
+end
+
+fliptable = function (t)
+    local result = {}
+    for _, x in ipairs(t) do
+        result[x] = true
+    end
+    return result
 end
 
 countneighbours = function (state, row, col)
@@ -67,10 +77,10 @@ updatestate = function (state, rules)
     end
 end
 
-Simulation = function (rules, cycles)
-    local rules = rules or {{[3]=true}, {[2]=true, [3]=true}}
+Simulation = function (ruleset)
+    local ruleset = ruleset or {{3}, {2, 3}}
+    local rules = {fliptable(ruleset[1]), fliptable(ruleset[2])}
     local state = {}
-    local cycles = cycles or 100
     math.randomseed(os.time())
     for i=1,GRIDSIZE do
         local newrow = {}
@@ -80,11 +90,11 @@ Simulation = function (rules, cycles)
         table.insert(state, newrow)
     end
     ---[[
-    for i=1,cycles do
+    for i=1,CYCLES do
         io.write("\n")
         printstate(state)
         updatestate(state, rules)
-        sleep(0.2)
+        sleep(DELAYTIME)
     end
     --]]
     --printstate(state)
