@@ -1,42 +1,59 @@
-Serra Angel	{3}{W}{W}
-Creature — Angel
-Flying, vigilance
-4/4
-
-Preordain	{U}
-Sorcery
-Scry 2, then draw a card. (To scry 2, look at the top two cards of your library, then put any number of them on the bottom of your library and the rest on top in any order.)
-
-Doran, the Siege Tower	{W}{B}{G}
-Legendary Creature — Treefolk Shaman
-Each creature assigns combat damage equal to its toughness rather than its power.
-0/5
-
-Kaalia of the Vast	{1}{R}{W}{B}
-Legendary Creature — Human Cleric
-Flying
-Whenever Kaalia of the Vast attacks an opponent, you may put an Angel, Demon, or Dragon creature card from your hand onto the battlefield tapped and attacking that opponent.
+Shardless Agent	{1}{G}{U}
+Artifact Creature — Human Rogue
+Cascade (When you cast this spell, exile cards from the top of your library until you exile a nonland card that costs less. You may cast it without paying its mana cost. Put the exiled cards on the bottom of your library in a random order.)
 2/2
 
-Lightning Bolt	{R}
+Nicol Bolas, Planeswalker	{4}{U}{B}{B}{R}
+Legendary Planeswalker — Bolas
++3: Destroy target noncreature permanent.
+−2: Gain control of target creature.
+−9: Nicol Bolas, Planeswalker deals 7 damage to target player or planeswalker. That player or that planeswalker's controller discards seven cards, then sacrifices seven permanents.
+5
+
+Mindslaver	{6}
+Legendary Artifact
+{4}, {T}, Sacrifice Mindslaver: You control target player during that player's next turn. (You see all cards that player could see and make all decisions for the player.)
+
+Abrupt Decay	{B}{G}
 Instant
-Lightning Bolt deals 3 damage to any target.
+This spell can't be countered.
+Destroy target nonland permanent with converted mana cost 3 or less.
 
-Dragonlord Atarka	{5}{R}{G}
-Legendary Creature — Elder Dragon
-Flying, trample
-When Dragonlord Atarka enters the battlefield, it deals 5 damage divided as you choose among any number of target creatures and/or planeswalkers your opponents control.
-8/8
+Baneslayer Angel	{3}{W}{W}
+Creature — Angel
+Flying, first strike, lifelink, protection from Demons and from Dragons
+5/5
 
-Avacyn, Angel of Hope	{5}{W}{W}{W}
-Legendary Creature — Angel
-Flying, vigilance, indestructible
-Other permanents you control have indestructible.
-8/8
+Karn Liberated	{7}
+Legendary Planeswalker — Karn
++4: Target player exiles a card from their hand.
+−3: Exile target permanent.
+−14: Restart the game, leaving in exile all non-Aura permanent cards exiled with Karn Liberated. Then put those cards onto the battlefield under your control.
+6
 
-Genesis Wave	{X}{G}{G}{G}
-Sorcery
-Reveal the top X cards of your library. You may put any number of permanent cards with converted mana cost X or less from among them onto the battlefield. Then put all cards revealed this way that weren't put onto the battlefield into your graveyard.
+Inferno Titan	{4}{R}{R}
+Creature — Giant
+{R}: Inferno Titan gets +1/+0 until end of turn.
+Whenever Inferno Titan enters the battlefield or attacks, it deals 3 damage divided as you choose among one, two, or three targets.
+6/6
+
+Ensnaring Bridge	{3}
+Artifact
+Creatures with power greater than the number of cards in your hand can't attack.
+
+Force of Will	{3}{U}{U}
+Instant
+You may pay 1 life and exile a blue card from your hand rather than pay this spell's mana cost.
+Counter target spell.
+
+Morphling	{3}{U}{U}
+Creature — Shapeshifter
+{U}: Untap Morphling.
+{U}: Morphling gains flying until end of turn.
+{U}: Morphling gains shroud until end of turn. (It can't be the target of spells or abilities.)
+{1}: Morphling gets +1/-1 until end of turn.
+{1}: Morphling gets -1/+1 until end of turn.
+3/3
 
 White Knight	{W}{W}
 Creature — Human Knight
@@ -44,140 +61,31 @@ First strike (This creature deals combat damage before creatures without first s
 Protection from black (This creature can't be blocked, targeted, dealt damage, or enchanted by anything black.)
 2/2
 
-Tibalt, the Fiend-Blooded	{R}{R}
-Legendary Planeswalker — Tibalt
-+1: Draw a card, then discard a card at random.
-−4: Tibalt, the Fiend-Blooded deals damage equal to the number of cards in target player's hand to that player.
-−6: Gain control of all creatures until end of turn. Untap them. They gain haste until end of turn.
-2
-
-Suture Priest	{1}{W}
-Creature — Cleric
-Whenever another creature enters the battlefield under your control, you may gain 1 life.
-Whenever a creature enters the battlefield under an opponent's control, you may have that player lose 1 life.
-1/1
-
-Balance	{1}{W}
+Life from the Loam	{1}{G}
 Sorcery
-Each player chooses a number of lands they control equal to the number of lands controlled by the player who controls the fewest, then sacrifices the rest. Players discard cards and sacrifice creatures the same way.
+Return up to three target land cards from your graveyard to your hand.
+Dredge 3 (If you would draw a card, instead you may put exactly three cards from the top of your library into your graveyard. If you do, return this card from your graveyard to your hand. Otherwise, draw a card.)
 
-Mulldrifter	{4}{U}
-Creature — Elemental
-Flying
-When Mulldrifter enters the battlefield, draw two cards.
-Evoke {2}{U} (You may cast this spell for its evoke cost. If you do, it's sacrificed when it enters the battlefield.)
-2/2
-
-Living End	
+Infernal Tutor	{1}{B}
 Sorcery
-Suspend 3—{2}{B}{B} (Rather than cast this card from your hand, pay {2}{B}{B} and exile it with three time counters on it. At the beginning of your upkeep, remove a time counter. When the last is removed, cast it without paying its mana cost.)
-Each player exiles all creature cards from their graveyard, then sacrifices all creatures they control, then puts all cards they exiled this way onto the battlefield.
+Reveal a card from your hand. Search your library for a card with the same name as that card, reveal it, put it into your hand, then shuffle your library.
+Hellbent — If you have no cards in hand, instead search your library for a card, put it into your hand, then shuffle your library.
 
-Phage the Untouchable	{3}{B}{B}{B}{B}
-Legendary Creature — Avatar Minion
-When Phage the Untouchable enters the battlefield, if you didn't cast it from your hand, you lose the game.
-Whenever Phage deals combat damage to a creature, destroy that creature. It can't be regenerated.
-Whenever Phage deals combat damage to a player, that player loses the game.
-4/4
+Sword of Fire and Ice	{3}
+Artifact — Equipment
+Equipped creature gets +2/+2 and has protection from red and from blue.
+Whenever equipped creature deals combat damage to a player, Sword of Fire and Ice deals 2 damage to any target and you draw a card.
+Equip {2}
 
-Silent Arbiter	{4}
-Artifact Creature — Construct
-No more than one creature can attack each combat.
-No more than one creature can block each combat.
-1/5
+Tooth and Nail	{5}{G}{G}
+Sorcery
+Choose one —
+• Search your library for up to two creature cards, reveal them, put them into your hand, then shuffle your library.
+• Put up to two creature cards from your hand onto the battlefield.
+Entwine {2} (Choose both if you pay the entwine cost.)
 
-Tezzeret the Seeker	{3}{U}{U}
-Legendary Planeswalker — Tezzeret
-+1: Untap up to two target artifacts.
-−X: Search your library for an artifact card with converted mana cost X or less and put it onto the battlefield. Then shuffle your library.
-−5: Artifacts you control become artifact creatures with base power and toughness 5/5 until end of turn.
-4
-
-Tireless Tracker	{2}{G}
-Creature — Human Scout
-Whenever a land enters the battlefield under your control, investigate. (Create a colorless Clue artifact token with "{2}, Sacrifice this artifact: Draw a card.")
-Whenever you sacrifice a Clue, put a +1/+1 counter on Tireless Tracker.
-3/2
-
-Monastery Mentor	{2}{W}
-Creature — Human Monk
-Prowess (Whenever you cast a noncreature spell, this creature gets +1/+1 until end of turn.)
-Whenever you cast a noncreature spell, create a 1/1 white Monk creature token with prowess.
-2/2
-
-Ball Lightning	{R}{R}{R}
-Creature — Elemental
-Trample (This creature can deal excess combat damage to the player or planeswalker it's attacking.)
-Haste (This creature can attack and {T} as soon as it comes under your control.)
-At the beginning of the end step, sacrifice Ball Lightning.
-6/1
-
-Kozilek, the Great Distortion	{8}{C}{C}
-Legendary Creature — Eldrazi
-When you cast this spell, if you have fewer than seven cards in hand, draw cards equal to the difference.
-Menace
-Discard a card with converted mana cost X: Counter target spell with converted mana cost X.
-12/12
-
-Swords to Plowshares	{W}
+Hydroblast	{U}
 Instant
-Exile target creature. Its controller gains life equal to its power.
-
-Faerie Conclave	
-Land
-Faerie Conclave enters the battlefield tapped.
-{T}: Add {U}.
-{1}{U}: Faerie Conclave becomes a 2/1 blue Faerie creature with flying until end of turn. It's still a land.
-
-Vhati il-Dal	{2}{B}{G}
-Legendary Creature — Human Warrior
-{T}: Until end of turn, target creature has base power 1 or base toughness 1.
-3/3
-
-Mind Control	{3}{U}{U}
-Enchantment — Aura
-Enchant creature
-You control enchanted creature.
-
-Nahiri, the Harbinger	{2}{R}{W}
-Legendary Planeswalker — Nahiri
-+2: You may discard a card. If you do, draw a card.
-−2: Exile target enchantment, tapped artifact, or tapped creature.
-−8: Search your library for an artifact or creature card, put it onto the battlefield, then shuffle your library. It gains haste. Return it to your hand at the beginning of the next end step.
-4
-
-Cavern of Souls	
-Land
-As Cavern of Souls enters the battlefield, choose a creature type.
-{T}: Add {C}.
-{T}: Add one mana of any color. Spend this mana only to cast a creature spell of the chosen type, and that spell can't be countered.
-
-Chain Lightning	{R}
-Sorcery
-Chain Lightning deals 3 damage to any target. Then that player or that permanent's controller may pay {R}{R}. If the player does, they may copy this spell and may choose a new target for that copy.
-
-Polluted Delta	
-Land
-{T}, Pay 1 life, Sacrifice Polluted Delta: Search your library for an Island or Swamp card and put it onto the battlefield. Then shuffle your library.
-
-Docent of Perfection	{3}{U}{U}
-Creature — Insect Horror
-Flying
-Whenever you cast an instant or sorcery spell, create a 1/1 blue Human Wizard creature token. Then if you control three or more Wizards, transform Docent of Perfection.
-5/4
-//
-Final Iteration	
-Creature — Eldrazi Insect
-Flying
-Wizards you control get +2/+1 and have flying.
-Whenever you cast an instant or sorcery spell, create a 1/1 blue Human Wizard creature token.
-6/5
-
-Karakas	
-Legendary Land
-{T}: Add {W}.
-{T}: Return target legendary creature to its owner's hand.
-
-Oath of Druids	{1}{G}
-Enchantment
-At the beginning of each player's upkeep, that player chooses target player who controls more creatures than they do and is their opponent. The first player may reveal cards from the top of their library until they reveal a creature card. If the first player does, that player puts that card onto the battlefield and all other cards revealed this way into their graveyard.
+Choose one —
+• Counter target spell if it's red.
+• Destroy target permanent if it's red.

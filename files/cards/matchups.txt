@@ -1,32 +1,16 @@
-Serra Angel
-Preordain
-Doran, the Siege Tower
-Kaalia of the Vast
-Lightning Bolt
-Dragonlord Atarka
-Avacyn, Angel of Hope
-Genesis Wave
+Shardless Agent
+Nicol Bolas, Planeswalker
+Mindslaver
+Abrupt Decay
+Baneslayer Angel
+Karn Liberated
+Inferno Titan
+Ensnaring Bridge
+Force of Will
+Morphling
 White Knight
-Tibalt, the Fiend-Blooded
-Suture Priest
-Balance
-Mulldrifter
-Living End
-Phage the Untouchable
-Silent Arbiter
-Tezzeret the Seeker
-Tireless Tracker
-Monastery Mentor
-Ball Lightning
-Kozilek, the Great Distortion
-Swords to Plowshares
-Faerie Conclave
-Vhati il-Dal
-Mind Control
-Nahiri, the Harbinger
-Cavern of Souls
-Chain Lightning
-Pollouted Delta
-Docent of Perfection
-Karakas
-Oath of Druids
+Life from the Loam
+Infernal Tutor
+Sword of Fire and Ice
+Tooth and Nail
+Hydroblast
