@@ -7,16 +7,53 @@
   c4 = buffer for finding n%2
 ]
 
->,                        get input
->++++++++[-<------>]<     sub ord(0)
+>
+                          ==input routine==
+                          with thanks to Urban Mueller
+>+
+[[-]                // Begin loop on first temp
+>[-],               // Clear the inp buffer to detect leave on eof and input
+  [
+    +[                          // Check for minus one on eof
+      -----------[            // Check for newline
+        >[-]++++++[<------>-]       // Subtract 38 to get the char in zero to nine
+        <--<<[->>++++++++++<<]      // Multiply the existing value by ten
+        >>[-<<+>>]          // and add in the new char
+      <+>]
+    ]
+  ]
+<]
+<
+   // Current cell is the number input
 
--[                        while input is not 1
+                          ==end input routine==
+
+-[+                       while input is not 1
+
                             ==output routine==
-  >+++++++[-<+++++++>]<     add 49 (restore input and add ord(0))
-  .                         putchar
-  >++++++++++.              \n
-  ---[-<------->]<+         subtract 48 (sub ord(0))
+                            with thanks to esolang wiki
+
+                            ;copy cell to workspace and back
+  [>>+>+<<<-]>>>
+  [<<<+>>>-]<<+>
+  [<->[                     ;while value exists
+     >++++++++++<           ;make a 10
+     [->-[>+>>]>[+[-<+>]>+>>]<<<<<] ;divide value by 10
+     >[-]                   ;dont need this cell
+     ++++++++[<++++++>-]    ;add 48 to remainder
+     >[<<+>>-]              ;store the remainder
+     >[<<+>>-]              ;get next value
+     <<
+  ]>]
+  <[-                       ;else need to make a zero
+     >>++++++++[<++++++>-]
+  ]
+    ;print and clear each stored remainder in reverse
+  <[.[-]<] 
+  
+  ++++++++++.[-]<          \n
                             ==end output routine==
+
   [->>+<<] >> [-<+<+>>] <   copy c1 to c2 (using c3 as buffer)
   [->[>+<-]+>[<->-]<<] >    store c2 modulo 2 in c3 (using repeating NOTS)
   [                         while c3 is 1
