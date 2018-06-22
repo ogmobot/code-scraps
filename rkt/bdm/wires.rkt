@@ -61,43 +61,43 @@
           ]
         )
       ]
-      [(5) ;TODO
+      [(5)
         (cond
           [
-            (eq? (number-of #\r wirelist) 0)
-            "Cut the second wire."
+            (and (eq? (last wirelist) #\b) (ser-num-odd))
+            "Cut the fourth wire.\n"
           ]
           [
-            (eq? (last wirelist) #\w)
-            "Cut the last wire."
+            (and (eq? (number-of #\r wirelist) 1) (> (number-of #\y wirelist) 1))
+            "Cut the first wire.\n"
           ]
           [
-            (> (number-of #\u wirelist) 1)
-            "Cut the last blue wire."
+            (eq? (number-of #\b wirelist) 0)
+            "Cut the second wire.\n"
           ]
           [
             else
-            "Cut the last wire."
+            "Cut the first wire.\n"
           ]
         )
       ]
-      [(6) ;TODO
+      [(6)
         (cond
           [
+            (and (eq? (number-of #\y wirelist) 0) (ser-num-odd))
+            "Cut the third wire.\n"
+          ]
+          [
+            (and (eq? (number-of #\y wirelist) 1) (> (number-of #\w wirelist) 1))
+            "Cut the fourth wire.\n"
+          ]
+          [
             (eq? (number-of #\r wirelist) 0)
-            "Cut the second wire."
-          ]
-          [
-            (eq? (last wirelist) #\w)
-            "Cut the last wire."
-          ]
-          [
-            (> (number-of #\u wirelist) 1)
-            "Cut the last blue wire."
+            "Cut the last wire.\n"
           ]
           [
             else
-            "Cut the last wire."
+            "Cut the fourth wire.\n"
           ]
         )
       ]
