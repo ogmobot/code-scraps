@@ -44,8 +44,9 @@ def build_spell_from_string(input_string):
         elif line.lower().startswith("school"):
             schooltext, _ = line.split(";", 1)
             output_spell.school = schooltext.split(" ",1)[1].title()
-        elif (line.lower().startswith("saving throw")) and (";" in line):
-            savthrow, spellres = line.split(";", 1)
+        elif (line.lower().startswith("saving throw")) and ("spell resistance" in line):
+            index = line.lower().index("spell resistance")
+            savthrow, spellres = line[:index], line[index:]
             input_lines.insert(0, savthrow.strip())
             input_lines.insert(1, spellres.strip())
         else:
