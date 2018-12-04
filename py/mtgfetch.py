@@ -2,8 +2,11 @@
 
 import requests, sys, argparse, os, ast
 SCRYFALL_API = "https://api.scryfall.com/"
-CACHE_LOCATION = "~/.mtgfetch"
+CACHE_LOCATION = os.environ["HOME"] + "/.mtgfetch"
 global _DEBUG
+
+def slugify(s): # converts string to legal filename
+    return "".join([c if c in "abcdefghijklmnopqrstuvwxyz." else "-" for c in s.lower()])
 
 def get_card(cardname):
     try:
@@ -11,8 +14,8 @@ def get_card(cardname):
     except FileNotFoundError:
         os.mkdir(CACHE_LOCATION)
         existing_cards = []
-    if (cardname+".json") in existing_cards:
-        f = open(CACHE_LOCATION + cardname+".json", "rU")
+    if slugify(cardname+".json") in existing_cards:
+        f = open(CACHE_LOCATION + "/" + slugify(cardname+".json"), "rU")
         card = ast.literal_eval(f.read())
         f.close()
     else:
@@ -28,8 +31,8 @@ def get_card(cardname):
                 card = r.json()
             else:
                 card = None
-        if card:
-            f = open(CACHE_LOCATION + cardname+".json", "w")
+        if card and ("name" in card):
+            f = open(CACHE_LOCATION + "/" + slugify(card["name"]+".json"), "w")
             f.write(str(card))
             f.close()
     return card
