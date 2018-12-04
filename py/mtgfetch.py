@@ -1,22 +1,37 @@
 #!/bin/python3
 
-import requests, sys, argparse
+import requests, sys, argparse, os, ast
 SCRYFALL_API = "https://api.scryfall.com/"
+CACHE_LOCATION = "~/.mtgfetch"
 global _DEBUG
 
 def get_card(cardname):
-    payload = {"fuzzy":cardname}
-    r = requests.get(SCRYFALL_API + "cards/named", params=payload)
-    if r.status_code == requests.codes.ok:
-        card = r.json()
+    try:
+        existing_cards = os.listdir(CACHE_LOCATION) # ideally, we'd only need to load this once...
+    except FileNotFoundError:
+        os.mkdir(CACHE_LOCATION)
+        existing_cards = []
+    if (cardname+".json") in existing_cards:
+        f = open(CACHE_LOCATION + cardname+".json", "rU")
+        card = ast.literal_eval(f.read())
+        f.close()
     else:
-        # The "Splinter" vs "Splinter Twin" case
-        payload = {"exact":cardname}
-        r = requests.get(SCRYFALL_API + "cards/named",params=payload)
+        payload = {"fuzzy":cardname}
+        r = requests.get(SCRYFALL_API + "cards/named", params=payload)
         if r.status_code == requests.codes.ok:
             card = r.json()
         else:
-            card = None
+            # The "Splinter" vs "Splinter Twin" case
+            payload = {"exact":cardname}
+            r = requests.get(SCRYFALL_API + "cards/named",params=payload)
+            if r.status_code == requests.codes.ok:
+                card = r.json()
+            else:
+                card = None
+        if card:
+            f = open(CACHE_LOCATION + cardname+".json", "w")
+            f.write(str(card))
+            f.close()
     return card
 
 def format_card(raw_card):
