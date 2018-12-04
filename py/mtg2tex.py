@@ -47,7 +47,7 @@ def renewcommands(card):
     texstring += (f"\\renewcommand{{\\FLAVOUR}}{{{card.get('flavor_text','')}}}").replace("\n","{\\par}").replace("\"","``",1)+"\n"
     if "power" in card:
         texstring += f"\\renewcommand{{\\POWTOU}}{{{card['power']}/{card['toughness']}}}\n"
-    return texstring
+    return texstring.strip()
 
 def get_art(card):
     filename = slugify(card["name"])+".jpg"
