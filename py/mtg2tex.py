@@ -44,7 +44,7 @@ def renewcommands(card):
     texstring += f"\\renewcommand{{\\ARTWORKFILE}}{{{artwork_file}}}\n"
     texstring += f"\\renewcommand{{\\TYPELINE}}{{{card['type_line']}}}\n"
     texstring += (f"\\renewcommand{{\\CARDTEXT}}{{{card.get('oracle_text','')}}}").replace("\n","{\\par}")+"\n"
-    texstring += (f"\\renewcommand{{\\FLAVOUR}}{{{card.get('flavor_text','')}}}").replace("\n","{\\par}")+"\n"
+    texstring += (f"\\renewcommand{{\\FLAVOUR}}{{{card.get('flavor_text','')}}}").replace("\n","{\\par}").replace("\"","``",1)+"\n"
     if "power" in card:
         texstring += f"\\renewcommand{{\\POWTOU}}{{{card['power']}/{card['toughness']}}}\n"
     return texstring
