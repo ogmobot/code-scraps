@@ -101,15 +101,15 @@ CARDTEMPLATE["start"] = r"""
 
 CARDTEMPLATE["text"] = r"""
     \draw (6,-51) node[below right] {\begin{fitbox}{47mm}{32mm}{\parbox{47mm}{\CARDTEXT \par \textit{\FLAVOUR}}}\end{fitbox}};
-""".strip()
+""".strip("\n")
 
 CARDTEMPLATE["flavour"] = r"""
     \draw (6,-51) node[below right] {\begin{fitbox}{47mm}{32mm}{\parbox{47mm}{\textit{\FLAVOUR}}}\end{fitbox}};
-""".strip()
+""".strip("\n")
 
 CARDTEMPLATE["textflavour"] = r"""
-    \draw (6,-51) node[below right] {\begin{fitbox}{47mm}{32mm}{\parbox{47mm}{\CARDTEXT \par \rule{textwidth}{.5pt} \par \textit{\FLAVOUR}}}\end{fitbox}};
-"""
+    \draw (6,-51) node[below right] {\begin{fitbox}{47mm}{32mm}{\parbox{47mm}{\CARDTEXT \par \rule{\textwidth}{.5pt} \par \textit{\FLAVOUR}}}\end{fitbox}};
+""".strip("\n")
 
 CARDTEMPLATE["powtou"] = r"""
     \draw (60,-85) node[above left,draw,fill=white] {\large \POWTOU};
