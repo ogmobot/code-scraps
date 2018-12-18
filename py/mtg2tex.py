@@ -2,6 +2,7 @@
 
 import sys
 import os
+import re
 from mtgfetch import get_card, CACHE_LOCATION, SCRYFALL_API, slugify
 
 CARDTEMPLATE = {}
@@ -151,6 +152,10 @@ def get_art(card):
         os.chdir(CACHE_LOCATION)
         os.system("wget " + url + " -O " + filename)
     return filename
+
+def paren_italic(text):
+    newtext = re.sub(r"(\([^\)]*\))", r"\textit{\1}", text)
+    return newtext
 
 def make_tex_card(card):
     output = []
