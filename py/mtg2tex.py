@@ -15,6 +15,7 @@ CARDTEMPLATE["preamble"] = r"""
 \newcommand{\POWTOU}{}
 \newcommand{\FLAVOUR}{}
 \newcommand{\LOYALTY}{}
+\newcommand{\ARTCREDIT}{}
 """
 
 CARDTEMPLATE["fitbox"] = r"""
@@ -121,8 +122,9 @@ CARDTEMPLATE["loyalty"] = r"""
 """.strip("\n")
 
 CARDTEMPLATE["finish"] = r"""
+    \draw (6,-85) node[below right,inner sep=1mm] {\tiny $\diamond$ \ARTCREDIT};
 \end{tikzpicture}
-""".strip()
+""".strip("\n")
 
 def renewcommands(card):
     artwork_file = get_art(card)
@@ -133,6 +135,7 @@ def renewcommands(card):
     texstring += f"\\renewcommand{{\\TYPELINE}}{{{card.get('type_line','')}}}\n"
     texstring += paren_italic(f"\\renewcommand{{\\CARDTEXT}}{{{card.get('oracle_text','')}}}").replace("\n","{\\par}")+"\n"
     texstring += (f"\\renewcommand{{\\FLAVOUR}}{{{card.get('flavor_text','')}}}").replace("\n","{\\par}").replace("\"","``",1)+"\n"
+    texstring += (f"\\renewcommand{{\\ARTCREDIT}}{{{card.get('artist','')}}}\n")
     if "power" in card:
         texstring += f"\\renewcommand{{\\POWTOU}}{{{card['power']}/{card['toughness']}}}\n"
     if "loyalty" in card:
