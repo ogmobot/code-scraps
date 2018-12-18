@@ -16,7 +16,9 @@ CARDTEMPLATE["preamble"] = r"""
 \newcommand{\FLAVOUR}{}
 \newcommand{\LOYALTY}{}
 \newcommand{\ARTCREDIT}{}
+\newcommand{\CardTitleFont}[1]{#1}
 """
+# Change to e.g. \newcommand{\CardTitleFont}[1]{\textsf{#1}}
 
 CARDTEMPLATE["fitbox"] = r"""
 \usepackage{environ}
@@ -94,10 +96,10 @@ CARDTEMPLATE["start"] = r"""
 \begin{tikzpicture}[x=1mm,y=1mm]
     \draw (0,0) rectangle (63,-88); % edge of card
     \draw (3,-3) rectangle (60,-82); % edge of border
-    \draw (5,-3) node[below right] {\begin{fitbox}{48mm}{4mm}\parbox{48mm}{\CARDNAME \hfill \MANACOST}\end{fitbox}};
+    \draw (5,-3) node[below right] {\begin{fitbox}{48mm}{4mm}\parbox{48mm}{\CardTitleFont{\CARDNAME} \hfill \MANACOST}\end{fitbox}};
     \draw (6,-8) rectangle (57,-46); % box for artwork, 51mm x 38mm
     \draw (6.5,-8.5) node[inner sep=0pt,below right] {\includegraphics[width=50mm,height=37mm]{\ARTWORKFILE}};
-    \draw (6,-46) node[below right] {\begin{fitbox}{48mm}{3mm}\TYPELINE\end{fitbox}};
+    \draw (6,-46) node[below right] {\begin{fitbox}{48mm}{3mm}\CardTitleFont{\TYPELINE}\end{fitbox}};
     \draw[fill=white] (6,-51) rectangle (57,-85); % text box
 """.strip()
 
