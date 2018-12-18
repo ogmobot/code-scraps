@@ -87,6 +87,11 @@ CARDTEMPLATE["fitbox"] = r"""
       \fi
     \fi
   \ifmoreiterations \repeat
+  % Set maximum size
+  \ifdim\fontdim>12pt
+    \fontdim12pt
+    \buildbox
+  \fi
   \box0% Typeset content
 }
 % With thanks to Werner
