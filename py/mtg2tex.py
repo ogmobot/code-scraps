@@ -131,7 +131,7 @@ def renewcommands(card):
     texstring += f"\\renewcommand{{\\MANACOST}}{{{card.get('mana_cost','')}}}\n"
     texstring += f"\\renewcommand{{\\ARTWORKFILE}}{{{artwork_file}}}\n"
     texstring += f"\\renewcommand{{\\TYPELINE}}{{{card.get('type_line','')}}}\n"
-    texstring += (f"\\renewcommand{{\\CARDTEXT}}{{{card.get('oracle_text','')}}}").replace("\n","{\\par}")+"\n"
+    texstring += paren_italic(f"\\renewcommand{{\\CARDTEXT}}{{{card.get('oracle_text','')}}}").replace("\n","{\\par}")+"\n"
     texstring += (f"\\renewcommand{{\\FLAVOUR}}{{{card.get('flavor_text','')}}}").replace("\n","{\\par}").replace("\"","``",1)+"\n"
     if "power" in card:
         texstring += f"\\renewcommand{{\\POWTOU}}{{{card['power']}/{card['toughness']}}}\n"
@@ -154,7 +154,7 @@ def get_art(card):
     return filename
 
 def paren_italic(text):
-    newtext = re.sub(r"(\([^\)]*\))", r"\textit{\1}", text)
+    newtext = re.sub(r"(\([^\)]*\))", r"\\textit{\1}", text)
     return newtext
 
 def make_tex_card(card):
