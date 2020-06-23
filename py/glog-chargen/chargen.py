@@ -3,6 +3,7 @@
 # Character creation method taken from Skerples' "Many Rats on Sticks"
 
 import csv
+import json
 import random
 from collections import OrderedDict
 
@@ -10,6 +11,8 @@ SHEET_WIDTH = 80
 SHEET_HEIGHT = 24
 
 d = lambda n:random.randint(1, n)
+
+clamp = lambda val, lower, upper:min(upper, max(lower, val))
 
 def die_parse(s):
     # Given a string s, e.g. "1d20+3", make that roll.
@@ -73,10 +76,20 @@ def roll_for_stats(reroll):
             result[stat] = max(result.get(stat), die_parse("3d6"))
     return result
 
+def add_class_template(character, template):
+    character["Class Templates"] = character.get("Class Templates", OrderedDict())
+    character["Class Templates"][template["Name"]] = character["Class Templates"].get(template["Name"], 0) + 1
+    character["Level"] = sum(character.get("Class Templates", {}).values())
+    new_abilities = [a[1] for a in template["Abilities"] if a[0] == character["Class Templates"][template["Name"]]]
+    character["Class Abilities"].extend(new_abilities)
+    return
+
 def stat_bonus(val):
     return min((val//3)-3, 5)
 
-def armor_bonus(name):
+def armour_bonus(name):
+    if not name:
+        return 0
     name = name.lower()
     if "leather" in name:
         return 2
@@ -87,7 +100,22 @@ def armor_bonus(name):
     elif "shield" in name:
         return 1
     else:
-        raise ValueError("bad armor type ({})".format(name))
+        raise ValueError("bad armour type ({})".format(name))
+
+def armour_penalty(name):
+    if not name:
+        return 0
+    name = name.lower()
+    if "leather" in name:
+        return 0
+    elif "chain" in name:
+        return -2
+    elif "plate" in name:
+        return -4
+    elif "shield" in name:
+        return 0
+    else:
+        raise ValueError("bad armour type ({})".format(name))
 
 def derived_stats(character):
     result = OrderedDict()
@@ -102,26 +130,62 @@ def derived_stats(character):
         6:14,
         7:14
     }.get(character.get("Level", 0))
-    # Defense is based on either DEX or armor
-    armors = set(item.lower() for item in character["Inventory"] if "armor" in item)
-    has_shield = any(["shield" in item.lower() for item in character["Inventory"])
-    # Might get fooled by e.g. "Amulet of Shielding"... but that's ok for now
-    result["Defense"] = 10 + max(
-        stat_bonus(character.get("Stats",{}).get("DEX",0)),
-        max(armor_bonus(a) for a in armors)
-    )
-    pass
+    # Defense is based on either DEX or armour
+    armours = [item.lower() for item in character.get("Inventory",[]) if "armour" in item]
+    wears_shield = any("shield" in item.lower() for item in character.get("Inventory",[]))
+    # Might get fooled by e.g. "Amulet of Shielding"... but that's ok for now.
+    # Assume that the player tries to maximise their Defense.
+    unarmoured_def = 10 + stat_bonus(character.get("Stats",{}).get("DEX",0))
+    if armours:
+        armours.sort(key=armour_bonus, reverse=True)
+        armoured_def = 10 + armour_bonus[armours[0]] + int(wears_shield)
+        worn_armor = armours[0] if armoured_def > unarmoured_def else None
+    else:
+        armoured_def = unarmoured_def
+        worn_armor = None
+    result["Defense"] = max(armoured_def, unarmoured_def)
+    # Movement is based on DEX
+    result["Movement"] = 12 + stat_bonus(character.get("Stats",{}).get("DEX",0)) - armour_penalty(worn_armor)
+    # Stealth is based on DEX
+    result["Stealth"] = 5 + stat_bonus(character.get("Stats",{}).get("DEX",0)) - armour_penalty(worn_armor)
+    # Save is based on CHA and level
+    result["Save"] = {
+        0:5,
+        1:6,
+        2:7,
+        3:7,
+        4:7,
+        5:8,
+        6:8,
+        7:8,
+        8:9,
+        9:9,
+    }.get(character.get("Level", 0)) + stat_bonus(character.get("Stats",{}).get("DEX",0))
+    # Repetition sense... is tingling... ^^^ ...should I wrap this in a function a la f(character, statname)?
+    # Max HP is based on CON and level
+    con = character.get("Stats",{}).get("CON",0)
+    lvl = character.get("Level",0)
+    if lvl < 7:
+        hp = con + (2*(lvl - 3))
+    else:
+        hp = con + lvl
+    result["Max HP"] = clamp(hp, 1, 20)
+    #TODO apply any bonuses granted by classes
+    return result
 
 def print_character(character):
     summary_string = "Level {} {} {} {} ({})".format(
         character.get("Level", 0),
         character.get("Gender", "Neuter"),
         character.get("Race", {}).get("Name", "[Race]"),
-        character.get("Class", {}).get("Name", "[Class]"),
+        "/".join(character.get("Class Templates",{"[Class]":1}).keys()),
         character.get("Background", {}).get("Name", "[Background]")
     )
     stat_col = character["Stats"]
     derived_col = derived_stats(character)
+    print(summary_string)
+    print(stat_col)
+    print(derived_col)
 
 ### Example character sheet (to scale) ###
 """
@@ -139,7 +203,7 @@ def print_character(character):
 | Make up 1d6 ludicrous lies and gain the "Foreign Parts" skill.               |
 |                                                                              |
 | Stats:     Attack:   11     Class abilities:     Equipment:                  |
-| STR 15     Defense:  10     Parry                Leather armor               |
+| STR 15     Defense:  10     Parry                Leather armour              |
 | DEX 10     Movement: 12                          Sword                       |
 | CON 11     Stealth:   5                          Bow                         |
 | INT  6     Save:      5                          20 arrows                   |
@@ -155,9 +219,13 @@ def print_character(character):
 
 def make_random_character():
     character = {
-        "Race": None,
-        "Class": None,
-        "Stats": None,
+        "Level": 0,
+        "Race": OrderedDict(),
+        "Class Templates": OrderedDict(),
+        "Class Abilities": [],
+        "Background": {},
+        "Stats": OrderedDict(),
+        "Inventory": [],
         "Setup": []
     }
 
@@ -179,4 +247,28 @@ def make_random_character():
     # Stats
     character["Stats"] = roll_for_stats(character["Race"]["Reroll"])
     if character["Race"]["Reroll"].lower() == "choice":
-        character["Setup"].append("Reroll one stat of your choice.")
+        character["Setup"].append("you may reroll one stat and keep the higher result.")
+
+    # Class templates
+    class_files = [
+        "class-fighter.json",
+        #"class-thief.json",
+        #"class-wizard-orthodox.json",
+    ]
+    #TODO get directory listing?
+    with open(random.choice(class_files), "r") as f:
+        class_json = json.load(f)
+    # This method automatically updates the character's level
+    add_class_template(character, class_json)
+
+    # Class-specific skills and items
+    # Some class skills are affected by gender, so choose that now.
+    character["Gender"] = random.choice(["Male", "Female"])
+
+    # Starting equipment
+    character["Inventory"].extend([
+        str(d(10)) + " copper pieces",
+        "1 blanket",
+        "3 rations"
+    ])
+    return character

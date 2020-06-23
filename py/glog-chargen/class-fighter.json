@@ -1,0 +1,14 @@
+{
+    "Name": "Fighter",
+    "Derived Value Bonus":{
+        "Max HP":1
+    },
+    "Abilities":[
+        [1,"Parry"],
+        [1,"+1 attack per round"],
+        [2,"Notches"],
+        [3,"Quick Learner"],
+        [3,"+2 Attack Stat"],
+        [4,"Impress"],
+        [4,"Cleave"]]
+}
