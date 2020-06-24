@@ -1,0 +1,28 @@
+{
+    "Name": "Thief",
+    "Derived Value Bonus":{
+        "Stealth":1
+    },
+    "Starting Equipment":[
+        "Leather armor",
+        "Lockpicks",
+        "Dagger"],
+    "Abilities":[
+        [1,"Always Prepared"],
+        [1,"Evaluate"],
+        [1,"Wall Crawler"],
+        [2,"Lucky"],
+        [2,"Quick Draw"],
+        [3,"Backstab"],
+        [4,"Great Escape"],
+        [4,"Very Lucky"]],
+    "Backgrounds":[
+        {"Name":"Bandit"},
+        {"Name":"Soldier"},
+        {"Name":"Farmer"},
+        {"Name":"Frontier"},
+        {"Name":"Scum"},
+        {"Name":"Unusual"}],
+    "Extra":[
+        "You may roll on the Table of Professions for a cover story. Gain the item but not the skill listed."]
+}

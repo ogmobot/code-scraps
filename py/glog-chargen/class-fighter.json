@@ -3,6 +3,11 @@
     "Derived Value Bonus":{
         "Max HP":1
     },
+    "Starting Equipment":[
+        "Leather armour",
+        "Sword",
+        "Bow",
+        "20 arrows"],
     "Abilities":[
         [1,"Parry"],
         [1,"+1 attack per round"],
@@ -10,5 +15,11 @@
         [3,"Quick Learner"],
         [3,"+2 Attack Stat"],
         [4,"Impress"],
-        [4,"Cleave"]]
+        [4,"Cleave"]],
+    "Backgrounds":[
+        {"Name":"Farmer"},
+        {"Name":"Soldier"},
+        {"Name":"Sailor"},
+        {"Name":"Frontier"},
+        {"Name":"Unusual"}]
 }

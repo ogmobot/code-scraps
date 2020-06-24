@@ -138,7 +138,7 @@ def derived_stats(character):
     unarmoured_def = 10 + stat_bonus(character.get("Stats",{}).get("DEX",0))
     if armours:
         armours.sort(key=armour_bonus, reverse=True)
-        armoured_def = 10 + armour_bonus[armours[0]] + int(wears_shield)
+        armoured_def = 10 + armour_bonus(armours[0]) + int(wears_shield)
         worn_armor = armours[0] if armoured_def > unarmoured_def else None
     else:
         armoured_def = unarmoured_def
@@ -181,11 +181,21 @@ def print_character(character):
         "/".join(character.get("Class Templates",{"[Class]":1}).keys()),
         character.get("Background", {}).get("Name", "[Background]")
     )
+    race_abilities = character["Race"].get("Perk","") + "\n" + character["Race"].get("Drawback","")
     stat_col = character["Stats"]
     derived_col = derived_stats(character)
+    ability_col = character["Class Abilities"]
+    equipment_col = character["Inventory"]
+    setup_col = character["Setup"]
     print(summary_string)
-    print(stat_col)
-    print(derived_col)
+    print(race_abilities)
+    print("Stats:\n" + "\n".join(f"{k}:\t{v}" for k,v in stat_col.items()))
+    print("\n".join(f"{k}:\t{v}" for k,v in derived_col.items()))
+    print("Class Abilities:\n" + "\n".join(ability_col))
+    print("Equipment:\n" + "\n".join(equipment_col))
+    if setup_col:
+        print("Extra:")
+        print("\n".join(f"* {item}" for item in setup_col))
 
 ### Example character sheet (to scale) ###
 """
@@ -247,13 +257,13 @@ def make_random_character():
     # Stats
     character["Stats"] = roll_for_stats(character["Race"]["Reroll"])
     if character["Race"]["Reroll"].lower() == "choice":
-        character["Setup"].append("you may reroll one stat and keep the higher result.")
+        character["Setup"].append("To complete setup, reroll one stat and keep the higher result.")
 
     # Class templates
     class_files = [
         "class-fighter.json",
-        #"class-thief.json",
-        #"class-wizard-orthodox.json",
+        "class-thief.json",
+        "class-wizard-orthodox.json",
     ]
     #TODO get directory listing?
     with open(random.choice(class_files), "r") as f:
@@ -264,8 +274,12 @@ def make_random_character():
     # Class-specific skills and items
     # Some class skills are affected by gender, so choose that now.
     character["Gender"] = random.choice(["Male", "Female"])
+    #TODO ensure background lines up with gender
+    character["Background"] = random.choice(class_json["Backgrounds"])
+    character["Inventory"].extend(class_json.get("Starting Equipment",[]))
+    character["Setup"].extend(class_json.get("Extra",[]))
 
-    # Starting equipment
+    # Remaining starting equipment
     character["Inventory"].extend([
         str(d(10)) + " copper pieces",
         "1 blanket",

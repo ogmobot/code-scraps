@@ -1,0 +1,30 @@
+{
+    "Name": "Orthodox Wizard",
+    "Derived Value Bonus":{
+    },
+    "Starting Equipment":[
+        "Spellbook",
+        "Ink and quill",
+        "Dagger",
+        "Red robes"],
+    "Abilities":[
+        [1,"Spellcasting"],
+        [1,"+1 MD"],
+        [1,"+1 Spell Slot"],
+        [1,"+2 Spells (1-6)"],
+        [2,"+1 MD"],
+        [2,"+1 Spell Slot"],
+        [2,"+1 Spell (1-8)"],
+        [2,"Book Casting"],
+        [3,"+1 MD"],
+        [3,"+1 Spell Slot"],
+        [3,"+1 Spell (1-10)"],
+        [3,"Friendly Spell"],
+        [4,"+1 MD"],
+        [4,"+1 Spell Slot"],
+        [4,"Choose 4 spells"]],
+    "Backgrounds":[
+        {"Name":"Chartered"}],
+    "Extra":[
+        "You can roll for a spell normally, or you can roll on the 1d100 Orthodox Spell List instead. You must accept the new result."]
+}
