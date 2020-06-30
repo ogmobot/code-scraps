@@ -160,7 +160,7 @@ def derived_stats(character):
         7:8,
         8:9,
         9:9,
-    }.get(character.get("Level", 0)) + stat_bonus(character.get("Stats",{}).get("DEX",0))
+    }.get(character.get("Level", 0)) + stat_bonus(character.get("Stats",{}).get("CHA",0))
     # Repetition sense... is tingling... ^^^ ...should I wrap this in a function a la f(character, statname)?
     # Max HP is based on CON and level
     con = character.get("Stats",{}).get("CON",0)
