@@ -242,8 +242,8 @@ def main():
     else:
         output.sort(key=(lambda x: x["name"]))
     for function in post_process:
-        output = function(output + "\n")
-    output_file.write(output)
+        output = function(output)
+    output_file.write(output + "\n")
     return
 
 if __name__=="__main__":
