@@ -213,6 +213,12 @@ def main():
             nargs=1,
             default=[""],
             help="output file (default stdout); should end with .html, .json, .md, or .tex")
+    parser.add_argument("-s",
+            dest="sort_by_level",
+            action="store_const",
+            const=True,
+            default=False,
+            help="sort spells by spell level, instead of alphabetically")
     args = parser.parse_args()
     post_process = []
     # post_process is a list of functions to sequentially call on a list of dicts to
@@ -231,10 +237,12 @@ def main():
     if len(post_process) == 0:
         post_process.append((lambda x: json.dumps(x, indent=4)))
     output = get_spell_list(file_to_list(args.input_file))
-    #output.sort(key=(lambda x: (x["level"], x["name"])))
-    output.sort(key=(lambda x: x["name"]))
+    if args.sort_by_level:
+        output.sort(key=(lambda x: (x["level"], x["name"])))
+    else:
+        output.sort(key=(lambda x: x["name"]))
     for function in post_process:
-        output = function(output)
+        output = function(output + "\n")
     output_file.write(output)
     return
 
