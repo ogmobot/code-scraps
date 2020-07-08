@@ -85,17 +85,64 @@ def get_spell_list(stringlist):
     return result
 
 # Formatting functions
-def format_md(spelllist):
-    return spelllist
+def format_summary(spell):
+    # Produce the string e.g. "1st-level conjuration (ritual)"
+    output = ""
+    school = spell.get("school", {}).get("name", "[school]")
+    if spell.get("level", 0) == 0:
+        output = f"{school.title()} cantrip"
+    else:
+        ordinal = {1:"st", 2:"nd", 3:"rd"}.get(spell.get("level", 0), "th")
+        output = f"{spell.get('level', 0)}{ordinal}-level {school.lower()}"
 
-def md2html(text):
+    if spell.get("ritual", False):
+        output += " (ritual)"
+    return output
+
+def format_list(spelllist, single_spell_func):
+    return "\n".join(single_spell_func(spell) for spell in spelllist)
+
+def format_md(spell):
+    return f"""# {spell["name"]}
+
+*{format_summary(spell)}*
+
+- **Casting Time:** {spell.get("casting_time", "N/A")}
+- **Range:** {spell.get("range", "N/A")}
+- **Components:** {", ".join(spell["components"]) if spell.get("components", None) else "None"}{(" (" + spell["material"] + ")") if spell.get("material", None) else ""}
+- **Duration:** {spell.get("duration", "N/A")}
+
+{(chr(10)+chr(10)).join(spell.get("desc", []))}
+{(chr(10) + "*__At Higher Levels.__* " + (chr(10)+chr(10)).join(spell["higher_level"])) if spell.get("higher_level", None) else ""}
+"""
+
+def format_tex(spell):
     return text
 
-def md2tex(text):
-    return text
+def format_html(spell):
+    return "<p>" + spell["desc"][0] + "</p>"
 
 def tex_topntail(text):
-    return text
+    return r"""
+\begin{document}
+""" + text + """
+\end{document}"""
+
+def html_topntail(text):
+    return r"""<!DOCTYPE html>
+<html>
+<head>
+    <title>Spellbook</title>
+    <style>
+    body {
+        font-family: Sans-Serif;
+    }
+    </style>
+</head>
+<body>
+""" + text + """
+</body>
+</html>"""
 
 # Main function
 def main():
@@ -116,9 +163,9 @@ def main():
     # change it into a string.
     if args.output_filename[0]:
         for suffix, functions in {
-            ".md":  [format_md],
-            ".html":[format_md, md2html],
-            ".tex": [format_md, md2tex, tex_topntail],
+            ".md":  [(lambda x: format_list(x, format_md))],
+            ".html":[(lambda x: format_list(x, format_html)), html_topntail],
+            ".tex": [(lambda x: format_list(x, format_tex)), tex_topntail],
         }.items():
             if args.output_filename[0].endswith(suffix):
                 post_process.extend(functions)
@@ -128,6 +175,8 @@ def main():
     if len(post_process) == 0:
         post_process.append((lambda x: json.dumps(x, indent=4)))
     output = get_spell_list(file_to_list(args.input_file))
+    #output.sort(key=(lambda x: (x["level"], x["name"])))
+    output.sort(key=(lambda x: x["name"]))
     for function in post_process:
         output = function(output)
     output_file.write(output)
