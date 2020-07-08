@@ -86,7 +86,7 @@ def get_spell_list(stringlist):
 
 # Formatting functions
 def format_summary(spell):
-    # Produce the string e.g. "1st-level conjuration (ritual)"
+    # Produce the string e.g. "1st-level conjuration (concentration, ritual)"
     output = ""
     school = spell.get("school", {}).get("name", "[school]")
     if spell.get("level", 0) == 0:
@@ -95,15 +95,21 @@ def format_summary(spell):
         ordinal = {1:"st", 2:"nd", 3:"rd"}.get(spell.get("level", 0), "th")
         output = f"{spell.get('level', 0)}{ordinal}-level {school.lower()}"
 
+    tags = []
+    if spell.get("concentration", False):
+        tags.append("concentration")
     if spell.get("ritual", False):
-        output += " (ritual)"
+        tags.append("ritual")
+    if tags:
+        output += f" ({', '.join(tags)})"
     return output
 
 def format_list(spelllist, single_spell_func):
     return "\n".join(single_spell_func(spell) for spell in spelllist)
 
 def format_md(spell):
-    return f"""# {spell["name"]}
+    return f"""{spell.get("name", "???")}
+{"-"*len(spell.get("name", "???"))}
 
 *{format_summary(spell)}*
 
@@ -114,22 +120,65 @@ def format_md(spell):
 
 {(chr(10)+chr(10)).join(spell.get("desc", []))}
 {(chr(10) + "*__At Higher Levels.__* " + (chr(10)+chr(10)).join(spell["higher_level"])) if spell.get("higher_level", None) else ""}
+***
 """
 
 def format_tex(spell):
-    return text
+    output = ""
+    output += "\\section{{{}}}\n\n".format(spell.get("name", "???"))
+    output += "\\noindent\\textit{{{}}}\n\n".format(format_summary(spell))
+    output += "\\begin{itemize}\n"
+    output += "\\item \\textbf{{Casting Time:}} {}\n".format(spell.get("casting time", "N/A"))
+    output += "\\item \\textbf{{Range:}} {}\n".format(spell.get("range", "N/A"))
+    output += "\\item \\textbf{{Components:}} {}".format(", ".join(spell["components"]) if spell.get("components", None) else "None")
+    output += (" ({})\n".format(spell["material"]) if spell.get("material", None) else "\n")
+    output += "\\item \\textbf{{Duration:}} {}\n".format(spell.get("duration", "N/A"))
+    output += "\\end{itemize}\n"
+    output += "\\noindent "
+    output += "\n\n".join(spell.get("desc",[]))
+    output += "\n\n"
+    if spell.get("higher_level", None):
+        output += r"\noindent \textit{\textbf{At Higher Levels.}} "
+        output += "".join(hl+"\n\n" for hl in spell.get("higher_level"))
+    output += "\\hrule\n\n"
+    return output
 
 def format_html(spell):
-    return "<p>" + spell["desc"][0] + "</p>"
+    return f"""<h2>{spell.get("name", "???")}</h2>
+<p><i>{format_summary(spell)}</i></p>
+<ul>
+    <li><b>Casting Time:</b> {spell.get("casting_time", "N/A")}</li>
+    <li><b>Range:</b> {spell.get("range", "N/A")}</li>
+    <li><b>Components:</b> {", ".join(spell["components"]) if spell.get("components", None) else "None"}{(" (" + spell["material"] + ")") if spell.get("material", None) else ""}</li>
+    <li><b>Duration:</b> {spell.get("duration", "N/A")}</li>
+</ul>
+
+<p>{("</p>" + chr(10) + "<p>").join(spell.get("desc", []))}</p>
+{(chr(10) + "<p><b><i>At Higher Levels.</i></b> " + ("</p>"+chr(10)+"<p>").join(spell["higher_level"]) + "</p>") if spell.get("higher_level", None) else ""}
+<hr />
+"""
+
+def md_topntail(text):
+    return """Spellbook
+=========
+
+""" + text.rstrip().rstrip("-") + "\n"
 
 def tex_topntail(text):
-    return r"""
-\begin{document}
-""" + text + """
-\end{document}"""
+    output = ""
+    output += r"\begin{document}"
+    output += "\n"
+    text = text.rstrip()
+    if text.endswith("\\hrule"):
+        text = text[:-6]
+    text += "\n\n"
+    output += text
+    output += r"\end{document}"
+    return output
 
 def html_topntail(text):
-    return r"""<!DOCTYPE html>
+    output = ""
+    output += r"""<!DOCTYPE html>
 <html>
 <head>
     <title>Spellbook</title>
@@ -140,9 +189,16 @@ def html_topntail(text):
     </style>
 </head>
 <body>
-""" + text + """
+<h1>Spellbook</h1>
+"""
+    text = text.strip()
+    if text.endswith("<hr />"):
+        text = text[:-7]
+    output += text
+    output += """
 </body>
 </html>"""
+    return output
 
 # Main function
 def main():
@@ -163,7 +219,7 @@ def main():
     # change it into a string.
     if args.output_filename[0]:
         for suffix, functions in {
-            ".md":  [(lambda x: format_list(x, format_md))],
+            ".md":  [(lambda x: format_list(x, format_md)), md_topntail],
             ".html":[(lambda x: format_list(x, format_html)), html_topntail],
             ".tex": [(lambda x: format_list(x, format_tex)), tex_topntail],
         }.items():
