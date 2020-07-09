@@ -86,15 +86,22 @@ def get_spell_list(stringlist):
     return result
 
 # Formatting functions
+def spell_level_name(level):
+    # Produce a string that indicates a spell level:
+    # "Cantrip", "1st-level", ... , "9th-level"
+    if level == 0:
+        return "cantrip"
+    else:
+        return str(level) + {1:"st", 2:"nd", 3:"rd"}.get(level, "th") + "-level"
+    
 def format_summary(spell):
     # Produce the string e.g. "1st-level conjuration (concentration, ritual)"
     output = ""
     school = spell.get("school", {}).get("name", "[school]")
-    if spell.get("level", 0) == 0:
+    if spell.get("level", -1) == 0:
         output = f"{school.title()} cantrip"
     else:
-        ordinal = {1:"st", 2:"nd", 3:"rd"}.get(spell.get("level", 0), "th")
-        output = f"{spell.get('level', 0)}{ordinal}-level {school.lower()}"
+        output = f"{spell_level_name(spell.get('level', -1))} {school.lower()}"
 
     tags = []
     if spell.get("concentration", False):
@@ -105,11 +112,25 @@ def format_summary(spell):
         output += f" ({', '.join(tags)})"
     return output
 
-def format_list(spelllist, single_spell_func):
-    return "\n".join(single_spell_func(spell) for spell in spelllist)
+def format_list(spelllist, single_spell_func, sort_by_level):
+    # If sort_by_level is true, add a header e.g. "1st-Level Spells"
+    # whenever the spell level changes.
+    output = ""
+    previous_spell_level = None
+    for spell in spelllist:
+        output += single_spell_func(spell, (sort_by_level and spell.get("level", -1) != previous_spell_level))
+        previous_spell_level = spell.get("level", -1)
+    return output
 
-def format_md(spell):
-    return f"""{spell.get("name", "???")}
+def format_md(spell, add_header):
+    output = ""
+    if add_header:
+        if spell.get("level", -1) == 0:
+            header = "Cantrips"
+        else:
+            header = spell_level_name(spell.get("level", -1)) + " Spells"
+        output += f"{header}\n{'-'*len(header)}\n\n"
+    output += f"""{spell.get("name", "???")}
 {"-"*len(spell.get("name", "???"))}
 
 *{format_summary(spell)}*
@@ -120,13 +141,22 @@ def format_md(spell):
 - **Duration:** {spell.get("duration", "N/A")}
 
 {(chr(10)+chr(10)).join(spell.get("desc", []))}
-{(chr(10) + "*__At Higher Levels.__* " + (chr(10)+chr(10)).join(spell["higher_level"])) if spell.get("higher_level", None) else ""}
+{(chr(10) + "*__At Higher Levels.__* " + (chr(10)+chr(10)).join(spell["higher_level"]) + chr(10)) if spell.get("higher_level", None) else ""}
 ***
-"""
 
-def format_tex(spell):
+"""
+    return output
+
+def format_tex(spell, add_header):
+    # TODO escape occurences of '$' and '\'?
     output = ""
-    output += "\\section{{{}}}\n\n".format(spell.get("name", "???"))
+    if add_header:
+        if spell.get("level", -1) == 0:
+            header = "Cantrips"
+        else:
+            header = spell_level_name(spell.get("level", -1)) + " Spells"
+        output += "\\section*{{{}}}\n".format(header)
+    output += "\\subsection*{{{}}}\n\n".format(spell.get("name", "???"))
     output += "\\noindent\\textit{{{}}}\n\n".format(format_summary(spell))
     output += "\\begin{itemize}\n"
     output += "\\item \\textbf{{Casting Time:}} {}\n".format(spell.get("casting time", "N/A"))
@@ -144,8 +174,17 @@ def format_tex(spell):
     output += "\\hrule\n\n"
     return output
 
-def format_html(spell):
-    return f"""<h2>{html.escape(spell.get("name", "???"))}</h2>
+def format_html(spell, add_header):
+    output = ""
+    if add_header:
+        if spell.get("level", -1) == 0:
+            header = "Cantrips"
+        else:
+            header = spell_level_name(spell.get("level", -1)) + " Spells"
+        output += f"""<h2 class="spell-level"><a name="level-{spell.get("level", -1)}">\
+{html.escape(header)}</a></h2>\n"""
+    output += f"""<h2 class="spell-name"><a name="{html.escape(clean_string(spell.get("_id")))}">\
+{html.escape(spell.get("name", "???"))}</a></h2>
 <p><i>{html.escape(format_summary(spell))}</i></p>
 <ul>
     <li><b>Casting Time:</b> {html.escape(spell.get("casting_time", "N/A"))}</li>
@@ -159,17 +198,21 @@ def format_html(spell):
 {(chr(10) + "<p><b><i>At Higher Levels.</i></b> " + ("</p>"+chr(10)+"<p>").join(html.escape(hl) for hl in spell["higher_level"]) + "</p>") if spell.get("higher_level", None) else ""}
 <hr />
 """
+    return output
 
 def md_topntail(text):
     return """Spellbook
 =========
 
-""" + text.rstrip().rstrip("-") + "\n"
+""" + text.rstrip().rstrip("*") + "\n"
 
 def tex_topntail(text):
     output = ""
-    output += r"\begin{document}"
-    output += "\n"
+    output += "\\documentclass{article}\n"
+    output += "\\title{Spellbook}\n"
+    output += "\\maketitle\n"
+    output += "%toc\n"
+    output += "\\begin{document}\n"
     text = text.rstrip()
     if text.endswith("\\hrule"):
         text = text[:-6]
@@ -192,6 +235,7 @@ def html_topntail(text):
 </head>
 <body>
 <h1>Spellbook</h1>
+<!--toc-->
 """
     text = text.strip()
     if text.endswith("<hr />"):
@@ -227,9 +271,9 @@ def main():
     # change it into a string.
     if args.output_filename[0]:
         for suffix, functions in {
-            ".md":  [(lambda x: format_list(x, format_md)), md_topntail],
-            ".html":[(lambda x: format_list(x, format_html)), html_topntail],
-            ".tex": [(lambda x: format_list(x, format_tex)), tex_topntail],
+            ".md":  [(lambda x: format_list(x, format_md, args.sort_by_level)), md_topntail],
+            ".html":[(lambda x: format_list(x, format_html, args.sort_by_level)), html_topntail],
+            ".tex": [(lambda x: format_list(x, format_tex, args.sort_by_level)), tex_topntail],
         }.items():
             if args.output_filename[0].endswith(suffix):
                 post_process.extend(functions)
