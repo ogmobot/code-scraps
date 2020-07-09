@@ -1,10 +1,11 @@
 #!/bin/python3
 
-import os
-import sys
-import requests
-import json
-import argparse
+import os       # to access the cache location
+import sys      # for access to stdin, stdout and stderr
+import requests # for HTTPS requests to the API
+import json     # for dumping and loading JSON
+import argparse # for command line arguments
+import html     # for escape characters in format_html
 CACHE_LOCATION = os.environ["HOME"] + "/.spellfetch/"
 DND_API = "https://www.dnd5eapi.co/api/"
 
@@ -144,17 +145,18 @@ def format_tex(spell):
     return output
 
 def format_html(spell):
-    return f"""<h2>{spell.get("name", "???")}</h2>
-<p><i>{format_summary(spell)}</i></p>
+    return f"""<h2>{html.escape(spell.get("name", "???"))}</h2>
+<p><i>{html.escape(format_summary(spell))}</i></p>
 <ul>
-    <li><b>Casting Time:</b> {spell.get("casting_time", "N/A")}</li>
-    <li><b>Range:</b> {spell.get("range", "N/A")}</li>
-    <li><b>Components:</b> {", ".join(spell["components"]) if spell.get("components", None) else "None"}{(" (" + spell["material"] + ")") if spell.get("material", None) else ""}</li>
-    <li><b>Duration:</b> {spell.get("duration", "N/A")}</li>
+    <li><b>Casting Time:</b> {html.escape(spell.get("casting_time", "N/A"))}</li>
+    <li><b>Range:</b> {html.escape(spell.get("range", "N/A"))}</li>
+    <li><b>Components:</b> {html.escape(", ".join(spell["components"]) if spell.get("components", None) else "None")}
+            {html.escape((" (" + spell["material"] + ")") if spell.get("material", None) else "")}</li>
+    <li><b>Duration:</b> {html.escape(spell.get("duration", "N/A"))}</li>
 </ul>
 
-<p>{("</p>" + chr(10) + "<p>").join(spell.get("desc", []))}</p>
-{(chr(10) + "<p><b><i>At Higher Levels.</i></b> " + ("</p>"+chr(10)+"<p>").join(spell["higher_level"]) + "</p>") if spell.get("higher_level", None) else ""}
+<p>{("</p>" + chr(10) + "<p>").join(html.escape(sd) for sd in spell.get("desc", []))}</p>
+{(chr(10) + "<p><b><i>At Higher Levels.</i></b> " + ("</p>"+chr(10)+"<p>").join(html.escape(hl) for hl in spell["higher_level"]) + "</p>") if spell.get("higher_level", None) else ""}
 <hr />
 """
 
