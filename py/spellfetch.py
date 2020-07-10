@@ -183,7 +183,7 @@ def format_html(spell, add_header):
             header = spell_level_name(spell.get("level", -1)) + " Spells"
         output += f"""<h2 class="spell-level"><a name="level-{spell.get("level", -1)}">\
 {html.escape(header)}</a></h2>\n"""
-    output += f"""<h2 class="spell-name"><a name="{html.escape(clean_string(spell.get("_id")))}">\
+    output += f"""<h2 class="spell-name"><a name="{html.escape(clean_string(spell.get("_id", hash(spell.get("name", None)))))}">\
 {html.escape(spell.get("name", "???"))}</a></h2>
 <p><i>{html.escape(format_summary(spell))}</i></p>
 <ul>
@@ -210,9 +210,9 @@ def tex_topntail(text):
     output = ""
     output += "\\documentclass{article}\n"
     output += "\\title{Spellbook}\n"
+    output += "\\begin{document}\n"
     output += "\\maketitle\n"
     output += "%toc\n"
-    output += "\\begin{document}\n"
     text = text.rstrip()
     if text.endswith("\\hrule"):
         text = text[:-6]
@@ -231,6 +231,22 @@ def html_topntail(text):
     body {
         font-family: Sans-Serif;
     }
+    h2.spell-name {
+    }
+    h2.spell-name {
+    }
+    h2.toc-header {
+        text-align:center;
+        font-size:small;
+    }
+    li.toc-entry {
+        font-size:small;
+    }
+    div.toc {
+        display:table;
+        padding: 1%;
+        border: solid grey 1px;
+    }
     </style>
 </head>
 <body>
@@ -245,6 +261,69 @@ def html_topntail(text):
 </body>
 </html>"""
     return output
+
+def md_toc(spelllist, text, sort_by_level):
+    try:
+        toc_index = text.index("=========\n") + 10
+    except ValueError:
+        sys.stderr.write("Failed to create table of contents.\n")
+        return text
+    first, last = text[:toc_index], text[toc_index:]
+    toc_text = """
+Contents
+--------
+"""
+    previous_spell_level = None
+    for spell in spelllist:
+        spell_level = spell.get("level", -1)
+        if spell_level != previous_spell_level and sort_by_level:
+            if spell_level == 0:
+                toc_text += f"> Cantrips:\n"
+            else:
+                toc_text += f"> {spell_level_name(spell_level)} Spells:\n"
+        if sort_by_level:
+            toc_text += ">"
+        toc_text += f"> {spell.get('name', '???')}\n"
+        previous_spell_level = spell_level
+    return first + toc_text + last
+
+def html_toc(spelllist, text, sort_by_level):
+    try:
+        toc_index = text.index("<!--toc-->\n")
+    except ValueError:
+        sys.stderr.write("Failed to create table of contents.\n")
+        return text
+    first, last = text[:toc_index], text[toc_index:]
+    toc_text = "<div class='toc'>\n<h2 class='toc-header'>Contents</h2>\n<ul>\n"
+    previous_spell_level = None
+    for spell in spelllist:
+        spell_level = spell.get("level", -1)
+        if spell_level != previous_spell_level and sort_by_level:
+            if previous_spell_level != None:
+                toc_text += "</ul>\n"
+            toc_text += "<li class='toc-entry'><a href='#level-"
+            toc_text += html.escape(f"{spell.get('level', -1)}")
+            toc_text += "'>"
+            if spell_level == 0:
+                toc_text += "Cantrips:"
+            else:
+                toc_text += f"{spell_level_name(spell_level)} Spells:"
+            toc_text += "</a></li>\n<ul>"
+        toc_text += "<li class='toc-entry'><a href='#"
+        toc_text += f"{html.escape(clean_string(spell.get('_id', hash(spell.get('name', None)))))}"
+        toc_text += f"'>{html.escape(spell.get('name', '???'))}</a></li>\n"
+        previous_spell_level = spell_level
+    if sort_by_level:
+        toc_text += "</ul>"
+    toc_text += "</ul></div>\n"
+    return first + toc_text + last
+
+def tex_toc(spelllist, text, sort_by_level):
+    if "%toc\n" not in text:
+        sys.stderr.write("Failed to create table of contents.\n")
+        return text
+    else:
+        return text.replace("%toc\n", "\\tableofcontents\n")
 
 # Main function
 def main():
@@ -265,15 +344,27 @@ def main():
             const=True,
             default=False,
             help="sort spells by spell level, instead of alphabetically")
+    parser.add_argument("-t",
+            dest="toc",
+            action="store_const",
+            const=True,
+            default=False,
+            help="add a table of contents at the start of the file (.html, .md or .tex only)")
     args = parser.parse_args()
     post_process = []
     # post_process is a list of functions to sequentially call on a list of dicts to
     # change it into a string.
     if args.output_filename[0]:
         for suffix, functions in {
-            ".md":  [(lambda x: format_list(x, format_md, args.sort_by_level)), md_topntail],
-            ".html":[(lambda x: format_list(x, format_html, args.sort_by_level)), html_topntail],
-            ".tex": [(lambda x: format_list(x, format_tex, args.sort_by_level)), tex_topntail],
+            ".md":  [
+                (lambda x: format_list(x, format_md, args.sort_by_level)),
+                md_topntail],
+            ".html":[
+                (lambda x: format_list(x, format_html, args.sort_by_level)),
+                html_topntail],
+            ".tex": [
+                (lambda x: format_list(x, format_tex, args.sort_by_level)),
+                tex_topntail],
         }.items():
             if args.output_filename[0].endswith(suffix):
                 post_process.extend(functions)
@@ -282,13 +373,23 @@ def main():
         output_file = sys.stdout
     if len(post_process) == 0:
         post_process.append((lambda x: json.dumps(x, indent=4)))
-    output = get_spell_list(file_to_list(args.input_file))
+    spelllist = get_spell_list(file_to_list(args.input_file))
     if args.sort_by_level:
-        output.sort(key=(lambda x: (x["level"], x["name"])))
+        spelllist.sort(key=(lambda x: (x["level"], x["name"])))
     else:
-        output.sort(key=(lambda x: x["name"]))
+        spelllist.sort(key=(lambda x: x["name"]))
+    output = spelllist
     for function in post_process:
         output = function(output)
+    if args.toc:
+        for suffix, toc_function in {
+            ".md": md_toc,
+            ".html": html_toc,
+            ".tex": tex_toc,
+        }.items():
+            if args.output_filename[0].endswith(suffix):
+                output = toc_function(spelllist, output, args.sort_by_level)
+                break
     output_file.write(output + "\n")
     return
 
