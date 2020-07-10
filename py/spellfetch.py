@@ -238,7 +238,7 @@ def html_topntail(text):
     }
     h2.spell-name {
     }
-    h2.spell-name {
+    h2.spell-level {
     }
     h2.toc-header {
         text-align:center;
@@ -353,6 +353,11 @@ def main():
             default=False,
             help="add a table of contents at the start of the file (.html, .md or .tex only)")
     args = parser.parse_args()
+    spelllist = get_spell_list(file_to_list(args.input_file))
+    if args.sort_by_level:
+        spelllist.sort(key=(lambda x: (x.get("level", -1), x.get("name"))))
+    else:
+        spelllist.sort(key=(lambda x: x.get("name")))
     post_process = []
     # post_process is a list of functions to sequentially call on a list of dicts to
     # change it into a string.
@@ -360,38 +365,32 @@ def main():
         for suffix, functions in {
             ".md":  [
                 (lambda x: format_list(x, format_md, args.sort_by_level)),
-                md_topntail],
+                md_topntail,
+                (lambda x: md_toc(spelllist, x, args.sort_by_level) if args.toc else x)],
             ".html":[
                 (lambda x: format_list(x, format_html, args.sort_by_level)),
-                html_topntail],
+                html_topntail,
+                (lambda x: html_toc(spelllist, x, args.sort_by_level) if args.toc else x)],
             ".tex": [
                 (lambda x: format_list(x, format_tex, args.sort_by_level)),
-                tex_topntail],
+                tex_topntail,
+                (lambda x: tex_toc(spelllist, x, args.sort_by_level) if args.toc else x)],
+            ".json": [
+                (lambda x: json.dumps(x, indent=4))],
         }.items():
             if args.output_filename[0].endswith(suffix):
                 post_process.extend(functions)
+                break
         output_file = open(args.output_filename[0], "w")
     else:
         output_file = sys.stdout
     if len(post_process) == 0:
+        if output_file != sys.stdout:
+            sys.stderr.write("Unrecognised format (defaulting to JSON).\n")
         post_process.append((lambda x: json.dumps(x, indent=4)))
-    spelllist = get_spell_list(file_to_list(args.input_file))
-    if args.sort_by_level:
-        spelllist.sort(key=(lambda x: (x.get("level", -1), x.get("name"))))
-    else:
-        spelllist.sort(key=(lambda x: x.get("name")))
     output = spelllist
     for function in post_process:
         output = function(output)
-    if args.toc:
-        for suffix, toc_function in {
-            ".md": md_toc,
-            ".html": html_toc,
-            ".tex": tex_toc,
-        }.items():
-            if args.output_filename[0].endswith(suffix):
-                output = toc_function(spelllist, output, args.sort_by_level)
-                break
     output_file.write(output + "\n")
     return
 
