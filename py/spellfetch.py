@@ -293,12 +293,9 @@ Contents
     return first + toc_text + last
 
 def html_toc(spelllist, text, sort_by_level):
-    try:
-        toc_index = text.index("<!--toc-->\n")
-    except ValueError:
+    if "<!--toc-->\n" not in text:
         sys.stderr.write("Failed to create table of contents.\n")
         return text
-    first, last = text[:toc_index], text[toc_index:]
     toc_text = "<div class='toc'>\n<h2 class='toc-header'>Contents</h2>\n<ul>\n"
     previous_spell_level = None
     for spell in spelllist:
@@ -321,7 +318,7 @@ def html_toc(spelllist, text, sort_by_level):
     if sort_by_level:
         toc_text += "</ul>"
     toc_text += "</ul></div>\n"
-    return first + toc_text + last
+    return text.replace("<!--toc-->\n", toc_text)
 
 def tex_toc(spelllist, text, sort_by_level):
     if "%toc\n" not in text:
