@@ -161,8 +161,8 @@ def format_tex(spell, add_header):
     output += "\\addcontentsline{{toc}}{{subsection}}{{{}}}\n".format(spell.get("name", "???"))
     output += "\\noindent\\textit{{{}}}\n\n".format(format_summary(spell))
     output += "\\begin{itemize}\n"
-    output += "\\setlength\\itemsep{0pt}"
-    output += "\\item \\textbf{{Casting Time:}} {}\n".format(spell.get("casting time", "N/A"))
+    output += "\\setlength\\itemsep{0pt}\n"
+    output += "\\item \\textbf{{Casting Time:}} {}\n".format(spell.get("casting_time", "N/A"))
     output += "\\item \\textbf{{Range:}} {}\n".format(spell.get("range", "N/A"))
     output += "\\item \\textbf{{Components:}} {}".format(", ".join(spell["components"]) if spell.get("components", None) else "None")
     output += (" ({})\n".format(spell["material"]) if spell.get("material", None) else "\n")
