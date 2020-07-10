@@ -377,9 +377,9 @@ def main():
         post_process.append((lambda x: json.dumps(x, indent=4)))
     spelllist = get_spell_list(file_to_list(args.input_file))
     if args.sort_by_level:
-        spelllist.sort(key=(lambda x: (x["level"], x["name"])))
+        spelllist.sort(key=(lambda x: (x.get("level", -1), x.get("name"))))
     else:
-        spelllist.sort(key=(lambda x: x["name"]))
+        spelllist.sort(key=(lambda x: x.get("name")))
     output = spelllist
     for function in post_process:
         output = function(output)
