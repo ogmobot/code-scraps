@@ -156,9 +156,12 @@ def format_tex(spell, add_header):
         else:
             header = spell_level_name(spell.get("level", -1)) + " Spells"
         output += "\\section*{{{}}}\n".format(header)
+        output += "\\addcontentsline{{toc}}{{section}}{{{}}}\n".format(header)
     output += "\\subsection*{{{}}}\n\n".format(spell.get("name", "???"))
+    output += "\\addcontentsline{{toc}}{{subsection}}{{{}}}\n".format(spell.get("name", "???"))
     output += "\\noindent\\textit{{{}}}\n\n".format(format_summary(spell))
     output += "\\begin{itemize}\n"
+    output += "\\setlength\\itemsep{0pt}"
     output += "\\item \\textbf{{Casting Time:}} {}\n".format(spell.get("casting time", "N/A"))
     output += "\\item \\textbf{{Range:}} {}\n".format(spell.get("range", "N/A"))
     output += "\\item \\textbf{{Components:}} {}".format(", ".join(spell["components"]) if spell.get("components", None) else "None")
@@ -166,12 +169,14 @@ def format_tex(spell, add_header):
     output += "\\item \\textbf{{Duration:}} {}\n".format(spell.get("duration", "N/A"))
     output += "\\end{itemize}\n"
     output += "\\noindent "
-    output += "\n\n".join(spell.get("desc",[]))
-    output += "\n\n"
+    for line in spell.get("desc", []):
+        output += line.replace(" '", " `").replace(" \"", " ``")
+        output += "\n\n"
     if spell.get("higher_level", None):
         output += r"\noindent \textit{\textbf{At Higher Levels.}} "
-        output += "".join(hl+"\n\n" for hl in spell.get("higher_level"))
-    output += "\\hrule\n\n"
+        for line in spell.get("higher_level", []):
+            output += line.replace(" '", " `").replace(" \"", " ``")
+    #output += "\\hrule\n\n"
     return output
 
 def format_html(spell, add_header):
@@ -214,8 +219,8 @@ def tex_topntail(text):
     output += "\\maketitle\n"
     output += "%toc\n"
     text = text.rstrip()
-    if text.endswith("\\hrule"):
-        text = text[:-6]
+    #if text.endswith("\\hrule"):
+    #    text = text[:-6]
     text += "\n\n"
     output += text
     output += r"\end{document}"
