@@ -1,5 +1,6 @@
 import json
 import random
+import argparse
 
 tables = {}
 
@@ -232,8 +233,41 @@ def main():
     tables["characters"] = load_tables("./tables-characters.json")
     tables["abilities"] = load_tables("./tables-abilities.json")
     tables["magic"] = load_tables("./tables-magic.json")
-    while do_menu():
-        pass
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c",
+        dest="characters",
+        nargs=1,
+        default=["0"],
+        help="number of complete characters to generate")
+    parser.add_argument("-n",
+        dest="names",
+        nargs=1,
+        default=["0"],
+        help="number of names to generate")
+    parser.add_argument("-s",
+        dest="spells",
+        nargs=1,
+        default=["0"],
+        help="number of spells to generate")
+    args = parser.parse_args()
+    characters = abs(int(args.characters[0]))
+    names = abs(int(args.names[0]))
+    spells = abs(int(args.spells[0]))
+
+    if characters + names + spells == 0:
+        # Interactive mode
+        while do_menu():
+            pass
+    else:
+        # Batch mode
+        for i in range(characters):
+            print(format_character_sheet(make_character()))
+        for i in range(names):
+            print(make_random_name())
+        for i in range(spells):
+            print(make_random_spell())
+    return
 
 if __name__ == "__main__":
     main()
