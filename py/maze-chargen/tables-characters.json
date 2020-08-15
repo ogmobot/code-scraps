@@ -65,16 +65,36 @@
         "apiarist"
     ],
     "female names": [
-        "adelaide"
+        "adelaide", "alma", "barsaba", "beatrix", "bianca", "cleopha",
+        "clover", "constance", "damaris", "daphne", "demona", "elsbeth",
+        "esme", "fern", "hester", "hippolyta", "jessamine", "jilly",
+        "morgot", "minerva", "nerissa", "odette", "olga", "orchid",
+        "pepper", "phoebe", "piety", "poppy", "silence", "sybil",
+        "trillby", "tuesday", "ursula", "vivian", "wendy", "zora"
     ],
     "male names": [
-        "balthazar"
+        "balthazar", "basil", "bertram", "blaxton", "chadwick", "clovis",
+        "destrian", "ellis", "erasmus", "faustus", "finn", "fitzhugh",
+        "florian", "fox", "godwin", "hannibal", "jasper", "jiles",
+        "jules", "leopold", "merrick", "mortimer", "ogden", "orion",
+        "oswald", "percival", "peregrine", "quentin", "redmaine", "reinhold",
+        "silas", "stilton", "stratford", "tenpiece", "waverly", "webster"
     ],
     "upper class surnames": [
-        "belvedere"
+        "belvedere", "bithesea", "calaver", "carvolo", "de rippe", "droll",
+        "dunlow", "edevane", "erelong", "febland", "fernsby", "fisk",
+        "gastrell", "girdwood", "gorgon", "grimeson", "gruger", "hitheryon",
+        "la marque", "malmora", "miter", "oblington", "onymous", "phillifent",
+        "portendorfer", "romatet", "rothery", "skorbeck", "slora", "southwark",
+        "stavish", "vandermeer", "wellbelove", "westergren", "wexley", "wilberforce"
     ],
     "lower class surnames": [
-        "barrow"
+        "barrow", "beetleman", "berrycloth", "birdwhistle", "bobich", "chips",
+        "coffin", "crumpling", "culpepper", "dankworth", "digworthy", "dreggs",
+        "gimble", "graveworm", "greelish", "hardwick", "hatman", "hovel",
+        "knibbs", "midnighter", "needle", "nethercoat", "pestle", "relish",
+        "rumbold", "rummage", "sallow", "saltmarsh", "silverless", "skitter",
+        "slee", "slitherly", "stoker", "tarwater", "tumbler", "villin"
     ],
     "assets": [
         "authority"

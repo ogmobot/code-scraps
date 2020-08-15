@@ -44,6 +44,10 @@ def make_character():
         w_desc = f"{w} ({category})"
         grant_weapon(c, w_desc)
     # Choose background and appearance
+    # (Adventurer's gender has been ignored for convenience, but this can
+    # lead to situations like female adventurers wearing a mustache or male
+    # adventurers wearing haute couture. This is fine. Players can, of
+    # course, reroll any of these traits or choose their own.)
     for (table_name, caption) in [
         ("appearances",      "Appearance:      "),
         ("physical details", "Physical detail: "),
@@ -176,13 +180,16 @@ def unequip(character, item):
         else:
             character["BACKPACK"].append(item)
             return True
-            
 
 def make_random_name():
-    gender = random.choice(["male", "female"])
+    # Assume most adventurers (4 in 6) are male
+    # (This seems consistent with pulp fantasy)
+    gender = random.choices(["male", "female"], (4, 2)).pop()
     firstname = random.choice(tables["characters"][f"{gender} names"])
-    society = random.choice(["upper class", "lower class"])
-    if society == "upper class" and random.randint(1, 20) == 1:
+    # Assume most adventurers (4 in 6) have lower class surnames
+    # (This seems consistent with pulp fantasy)
+    society = random.choices(["lower class", "upper class"], (4, 2)).pop()
+    if society == "upper class" and random.randint(1, 36) == 1:
         # "This table can also be used for upper-class first names,
         #  if you want them to sound extra snobby."
         firstname = random.choice(tables["characters"]["upper class surnames"])
