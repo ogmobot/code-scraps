@@ -64,6 +64,12 @@
     "mutations": [
     ],
     "insanities": [
+        "always lies", "always polite", "believes they have the form of a {monsters:animals}", "cannot count", "cannot lie", "faceblind",
+        "fears birds", "fears blood", "fears books", "fears darkness", "fears fire", "fears gold",
+        "fears horses", "fears iron", "fears music", "fears own hand", "fears PC", "fears rain",
+        "fears rivers", "fears silence", "fears sleep", "fears sunlight", "fears the moon", "fears trees",
+        "believes they are a genius", "believes they are gorgeous", "hates violence", "belives they are invisible", "believes they are invulnerable", "believes they are {monsters:abilities}",
+        "believes they have {monsters:features}", "believes they are {monsters:traits}", "must sing", "new personality {characters:personalities}", "says thoughts", "sees dead people"
     ],
     "omens": [
     ]

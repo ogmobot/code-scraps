@@ -15,14 +15,6 @@
         "nine fingers", "oiled hair", "one-eyed", "pale skinned", "piercings", "ritual scars",
         "sallow skin", "shaved head", "sunburned", "tangled hair", "tattoos", "topknot"
     ],
-    "backgrounds": [
-        "alchemist", "beggar-prince", "blackmailer", "bounty-hunter", "chimney sweep", "coin-clipper",
-        "contortionist", "counterfeiter", "cultist", "cutpurse", "debt-collector", "deserter",
-        "fence", "fortuneteller", "galley slave", "gambler", "gravedigger", "headsman",
-        "hedge knight", "highwayman", "housebreaker", "kidnapper", "mad prophet", "mountebank",
-        "peddler", "pit-fighter", "poisoner", "rat-catcher", "scrivener", "sellsword",
-        "slave", "smuggler", "street performer", "tattooist", "urchin", "userer"
-    ],
     "clothing": [
         "antique", "battle-torn", "bedraggled", "blood-stained", "ceremonial", "dated",
         "decaying", "eccentric", "elegant", "embroidered", "exotic", "fashionable",
@@ -47,14 +39,29 @@
         "rapid-fire", "rhyming", "robotic", "slow speech", "speechifies", "squeaky",
         "street slang", "stutters", "talks to self", "trails off", "very loud", "whispers"
     ],
-    "civilized npcs": [
-        "acolytes"
+    "civilized professions": [
+        "acolyte", "actor", "apothecary", "baker", "barber", "blacksmith",
+        "brewer", "bureaucrat", "butcher", "carpenter", "clockmaker", "courier",
+        "courtier", "diplomat", "fishmonger", "guard", "haberdasher", "innkeeper",
+        "item-seller", "jeweler", "knight", "locksmith", "mason", "miller",
+        "musician", "noble", "painter", "priest", "scholar", "scribe",
+        "sculptor", "shipwright", "soldier", "tailor", "taxidermist", "wigmaker"
     ],
-    "underworld npcs": [
-        "alchemist"
+    "underworld professions": [
+        "alchemist", "beggar-prince", "blackmailer", "bounty-hunter", "chimney sweep", "coin-clipper",
+        "contortionist", "counterfeiter", "cultist", "cutpurse", "debt-collector", "deserter",
+        "fence", "fortuneteller", "galley slave", "gambler", "gravedigger", "headsman",
+        "hedge knight", "highwayman", "housebreaker", "kidnapper", "mad prophet", "mountebank",
+        "peddler", "pit-fighter", "poisoner", "rat-catcher", "scrivener", "sellsword",
+        "slave", "smuggler", "street performer", "tattooist", "urchin", "userer"
     ],
-    "wilderness npcs": [
-        "apiarist"
+    "wilderness professions": [
+        "apiarist", "bandit", "caravan guard", "caravaneer", "druid", "exile",
+        "explorer", "farmer", "fisherman", "forager", "fugitive", "hedge wizard",
+        "hermit", "hunter", "messenger", "minstrel", "monk", "monster hunter",
+        "outlander", "tinker", "pilgrim", "poacher", "raider", "ranger",
+        "sage", "scavenger", "scout", "shepherd", "seer", "surveyor",
+        "tinker", "tomb raider", "trader", "trapper", "witch", "woodcutter"
     ],
     "female names": [
         "adelaide", "alma", "barsaba", "beatrix", "bianca", "cleopha",
@@ -121,7 +128,12 @@
         "replaced", "robbed", "sick", "sued", "suspected", "transformed"
     ],
     "missions": [
-        "apprehend"
+        "apprehend {*npc}", "assassinate {*npc}", "blackmail {*npc}", "burgle {*npc}", "chart {wilderness:regions}", "convince {*npc}",
+        "deface {cities:upper class buildings}", "defraud {*npc}", "deliver {*treasure}", "destroy {*treasure}", "discredit {*npc}", "escort {*npc}",
+        "exfiltrate {cities:factions}", "extort {*npc}", "follow {*npc}", "frame {*npc}", "impersonate {*npc}", "impress {*npc}",
+        "infiltrate {cities:factions}", "interrogate {*npc}", "investigate {cities:factions}", "kidnap {*npc}", "locate {*npc}", "plant {*treasure}",
+        "protect {*npc}", "raid {dungeons:forms}", "replace {*treasure}", "retrieve {*treasure}", "rob {*npc}", "ruin {cities:upper class buildings}",
+        "sabotage {cities:factions}", "smuggle {*treasure}", "surveil {cities:factions}", "take over {cities:factions}", "terrorize {cities:factions}", "threaten {*npc}"
     ],
     "methods": [
         "alchemy"

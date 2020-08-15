@@ -12,7 +12,9 @@ def load_tables(filename):
     return ts
 
 def parse_table_option(s):
-    m = re.match("{(.*)}", s)
+    m = re.search("{(.*)}", s)
+    # m[0] = {foo:bar}
+    # m[1] = foo:bar
     if not m:
         # Literal string
         return s
@@ -21,7 +23,16 @@ def parse_table_option(s):
         if m[1] == "*treasure":
             pass
         elif m[1] == "*npc":
-            return make_random_name() # TODO make actual NPC?
+            # TODO make actual NPC?
+            return parse_table_option(s.replace(m[0], make_random_name()))
+        elif m[1].startswith("*an"):
+            parts = m[1].split(":")
+            word = parse_table_option(f"{{{':'.join(parts[1:])}}}")
+            if word and word[0] in "aeiou":
+                article = "an"
+            else:
+                article = "a"
+            return s.replace(m[0], f"{article} {word}")
         else:
             # Can't find this special case
             return s
@@ -37,7 +48,9 @@ def parse_table_option(s):
                 return s
         # If we get to this point, d should be a list of strings.
         # Careful -- this could recurse.
-        return parse_table_option(random.choice(d))
+        if not d:
+            print(f"bad parse expression: {s}")
+        return parse_table_option(s.replace(m[0], random.choice(d)))
 
 def make_character(character_level=1):
     c = {}
@@ -81,13 +94,13 @@ def make_character(character_level=1):
     # adventurers wearing haute couture. This is fine. Players can, of
     # course, reroll any of these traits or choose their own.)
     for (table_name, caption) in [
-        ("appearances",      "Appearance:      "),
-        ("physical details", "Physical detail: "),
-        ("backgrounds",      "Background:      "),
-        ("personalities",    "Personality:     "),
-        ("mannerisms",       "Mannerism:       ")
+        ("appearances",            "Appearance:      "),
+        ("physical details",       "Physical detail: "),
+        ("underworld professions", "Background:      "),
+        ("personalities",          "Personality:     "),
+        ("mannerisms",             "Mannerism:       ")
     ]:
-        var = random.choice(tables["characters"][table_name])
+        var = parse_table_option(f"{{characters:{table_name}}}")
         c["NOTES"].append(f"{caption}{cfl(var)}")
     # Clothes are always worn, sometimes under armor
     clothing = parse_table_option("{characters:clothing}")
@@ -120,6 +133,20 @@ WIL +{c["WIL"]}  HEALTH {"{:2}".format(c["HEALTH"])} ({c["MAX HEALTH"]})
         left_panel.strip(),
         notes_panel.strip(),
         equipment_panel.strip()]))
+
+def format_npc(n):
+    notes = "\n".join(["{:<16} {}".format(a + ":", b) for a, b in [
+        ("Asset",           cfl(n["asset"])),
+        ("Liability",       cfl(n["liability"])),
+        ("Appearance",      cfl(n["appearance"])),
+        ("Physical detail", cfl(n["physical detail"])),
+        ("Personality",     cfl(n["personality"])),
+        ("Goal",            cfl(n["goal"]))
+    ]])
+    return f"""
+{n["name"]}, the {n["profession"]}.
+{notes}
+""".strip()
 
 def cfl(s):
     # Capitalize first letter only
@@ -234,6 +261,24 @@ def gain_a_level(c):
         apply_bonus(c, f"bonus 1 {ability}")
     pass
 
+def make_npc():
+    npc = {}
+    npc["name"] = make_random_name()
+    npc["type"] = random.choice(["civilized",  "underworld", "wilderness"])
+    npc["profession"] = parse_table_option(f"{{characters:{npc['type']} professions}}")
+    for key, s in [
+        ("asset",           "{characters:assets}"),
+        ("liability",       "{characters:liabilities}"),
+        ("goal",            "{characters:npc goals}"),
+        ("appearance",      "{characters:appearances}"),
+        ("physical detail", "{characters:physical details}"),
+        ("clothing",        "{characters:clothing}"),
+        ("personality",     "{characters:personalities}"),
+        ("mannerism",       "{characters:mannerisms}")
+    ]:
+        npc[key] = parse_table_option(s)
+    return npc
+
 def make_random_name():
     # Assume most adventurers (4 in 6) are male
     # (This seems consistent with pulp fantasy)
@@ -266,6 +311,8 @@ def do_menu(character_level=1):
             (lambda:make_random_name()), True),
         ("c", "Generate random spell",
             (lambda:make_random_spell()), True),
+        ("d", "Generate random npc",
+            (lambda:format_npc(make_npc())), True),
         ("q", "Quit",
             (lambda:None), False)]
     for t in options:
@@ -308,13 +355,19 @@ def main():
         nargs=1,
         default=["0"],
         help="number of spells to generate")
+    parser.add_argument("-N",
+        dest="npcs",
+        nargs=1,
+        default=["0"],
+        help="number of NPCs to generate")
     args = parser.parse_args()
     characters = abs(int(args.characters[0]))
     level = abs(int(args.level[0]))
     names = abs(int(args.names[0]))
     spells = abs(int(args.spells[0]))
+    npcs = abs(int(args.npcs[0]))
 
-    if characters + names + spells == 0:
+    if characters + names + spells + npcs == 0:
         # Interactive mode
         while do_menu(level):
             pass
@@ -327,6 +380,9 @@ def main():
             print(make_random_name())
         for i in range(spells):
             print(make_random_spell())
+        for i in range(npcs):
+            print(format_npc(make_npc()))
+            print()
     return
 
 if __name__ == "__main__":
