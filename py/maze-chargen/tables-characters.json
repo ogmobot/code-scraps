@@ -8,22 +8,52 @@
         "ten foot pole", "tinderbox", "torch", "vial of acid", "vial of poison", "waterskin"
     ],
     "appearances": [
-        "aquiline"
+        "aquiline", "athletic", "barrel-chested", "boney", "brawny", "brutish",
+        "bullnecked", "chiseled", "coltish", "corpulent", "craggy", "delicate",
+        "furrowed", "gaunt", "gorgeous", "grizzled", "haggard", "handsome",
+        "hideous", "lanky", "pudgy", "ripped", "rosy", "scrawny",
+        "sinewy", "slender", "slumped", "solid", "square-jawed", "statuesque",
+        "towering", "trim", "weathered", "willowy", "wiry", "wrinkled"
     ],
     "physical details": [
-        "acid scars"
+        "acid scars", "battle scars", "birthmark", "braided hair", "brand mark", "broken nose",
+        "bronze skinned", "burn scars", "bushy eyebrows", "curly hair", "dark skinned", "dreadlocks",
+        "exotic accent", "flogging scars", "freckles", "gold tooth", "hoarse voice", "huge beard",
+        "long hair", "matted hair", "missing ear", "missing teeth", "mustache", "muttonchops",
+        "nine fingers", "oiled hair", "one-eyed", "pale skinned", "piercings", "ritual scars",
+        "sallow skin", "shaved head", "sunburned", "tangled hair", "tattoos", "topknot"
     ],
     "backgrounds": [
-        "alchemist"
+        "alchemist", "beggar-prince", "blackmailer", "bounty-hunter", "chimney sweep", "coin-clipper",
+        "contortionist", "counterfeiter", "cultist", "cutpurse", "debt-collector", "deserter",
+        "fence", "fortuneteller", "galley slave", "gambler", "gravedigger", "headsman",
+        "hedge knight", "highwayman", "housebreaker", "kidnapper", "mad prophet", "mountebank",
+        "peddler", "pit-fighter", "poisoner", "rat-catcher", "scrivener", "sellsword",
+        "slave", "smuggler", "street performer", "tattooist", "urchin", "userer"
     ],
     "clothing": [
-        "antique"
+        "antique", "battle-torn", "bedraggled", "blood-stained", "ceremonial", "dated",
+        "decaying", "eccentric", "elegant", "embroidered", "exotic", "fashionable",
+        "flamboyant", "food-stained", "formal", "frayed", "frumpy", "garish",
+        "grimy", "haute couture", "lacey", "livery", "mud-stained", "ostentatious",
+        "oversized", "patched", "patterned", "perfumed", "practical", "rumpled",
+        "sigils", "singed", "tasteless", "undersized", "wine-stained", "worn out"
     ],
     "personalities": [
-        "bitter"
+        "bitter", "brave", "cautious", "chipper", "contrary", "cowardly",
+        "cunning", "driven", "entitled", "gregarious", "grumpy", "heartless",
+        "honor-bound", "hotheaded", "inquisitive", "irascible", "jolly", "know-it-all",
+        "lazy", "loyal", "menacing", "mopey", "nervous", "protective",
+        "righteous", "rude", "sarcastic", "savage", "scheming", "serene",
+        "spacey", "stoic", "stubborn", "stuck-up", "suspicious", "wisecracking"
     ],
     "mannerisms": [
-        "anecdotes"
+        "anecdotes", "breathy", "chuckles", "clipped", "cryptic", "deep voice",
+        "drawl", "enunciates", "flowery speech", "gravelly voice", "highly formal", "hypnotic",
+        "interrupts", "laconic", "laughs", "long pauses", "melodious", "monotone",
+        "mumbles", "narrates", "overly casual", "quaint sayings", "rambles", "random facts",
+        "rapid-fire", "rhyming", "robotic", "slow speech", "speechifies", "squeaky",
+        "street slang", "stutters", "talks to self", "trails off", "very loud", "whispers"
     ],
     "civilized npcs": [
         "acolytes"

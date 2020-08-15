@@ -43,6 +43,19 @@ def make_character():
         w = random.choice(weapons)
         w_desc = f"{w} ({category} weapon)"
         c["BACKPACK"].append(w_desc)
+    # Choose background and appearance
+    for (table_name, caption) in [
+        ("appearances",      "Appearance:      "),
+        ("physical details", "Physical detail: "),
+        ("backgrounds",      "Background:      "),
+        ("personalities",    "Personality:     "),
+        ("mannerisms",       "Mannerism:       ")
+    ]:
+        var = random.choice(tables["characters"][table_name])
+        c["NOTES"].append(f"{caption}{cfl(var)}")
+    # Clothes are always worn, sometimes under armor
+    clothing = random.choice(tables["characters"]["clothing"])
+    c["WORN"].append(f"Clothes ({clothing})")
     # Set up spells
     while len(c["SPELLS"]) < c["SPELL SLOTS"]:
         c["SPELLS"].append(make_random_spell())
@@ -51,6 +64,12 @@ def make_character():
     c["XP"] = 0
     c["LEVEL"] = 1
     return c
+
+def cfl(s):
+    # Capitalize first letter only
+    if s:
+        s = s[0].upper() + s[1:]
+    return s
 
 def apply_bonus(character, feature):
     # Returns whether feature was successfully applied
