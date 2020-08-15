@@ -32,51 +32,5 @@
             "moving silently",
             "hiding in shadows"
         ]
-    },
-    "weapon names": {
-        "light": [
-            "axe",
-            "dagger",
-            "mace",
-            "short sword",
-            "flail",
-            "one-handed spear"
-        ],
-        "heavy": [
-            "spear",
-            "halberd",
-            "long sword",
-            "warhammer"
-        ],
-        "ranged": [
-            "bow",
-            "crossbow",
-            "sling"
-        ]
-    },
-    "armor": {
-        "light armor": {
-            "slot": "WORN",
-            "bonus": 1
-        },
-        "heavy armor": {
-            "slot": "WORN",
-            "bonus": 1
-        },
-        "shield": {
-            "slot": "HANDS",
-            "bonus": 1
-        }
-    },
-    "weapons": {
-        "light": {
-            "hands": 1
-        },
-        "heavy": {
-            "hands": 2
-        },
-        "ranged": {
-            "hands": 2
-        }
     }
 }

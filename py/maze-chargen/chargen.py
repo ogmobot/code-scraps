@@ -34,13 +34,13 @@ def make_character():
     # Choose six items
     for i in range(6):
         # Duplicates are fine; every item takes a different slot.
-        c["BACKPACK"].append(random.choice(tables["characters"]["items"]))
+        c["BACKPACK"].append(random.choice(tables["items"]["items"]))
     # Choose combat gear
     grant_armor(c, "light armor")
     grant_armor(c, "shield")
     for i in range(2):
         category = random.choice(
-            list(tables["abilities"]["combat gear"].keys()))
+            list(tables["items"]["weapons"].keys()))
         grant_weapon(c, category)
     # Choose background and appearance
     # (Adventurer's gender has been ignored for convenience, but this can
@@ -113,11 +113,11 @@ def apply_bonus(character, feature):
         return False
 
 def grant_armor(character, armor):
-    new_armor = tables["abilities"]["armor"][armor]
+    new_armor = tables["items"]["armor"][armor]
     current_armor = None
     for worn_item in character[new_armor["slot"]]:
-        if worn_item in tables["abilities"]["armor"]:
-            current_armor = tables["abilities"]["armor"][worn_item]
+        if worn_item in tables["items"]["armor"]:
+            current_armor = tables["items"]["armor"][worn_item]
             break
     if not current_armor:
         # Put on armor
@@ -138,10 +138,8 @@ def grant_armor(character, armor):
         return True
 
 def grant_weapon(character, weapon_category):
-    # This will necessarily have a different structure to grant_armor,
-    # because we need to check what category weapon_desc is in.
-    weapon = random.choice(tables["abilities"]["combat gear"][weapon_category])
-    weapon_data = tables["abilities"]["weapon categories"][weapon_category]
+    weapon = random.choice(tables["items"]["weapon names"][weapon_category])
+    weapon_data = tables["items"]["weapons"][weapon_category]
     weapon_desc = f"{weapon} ({weapon_category})"
     if not character["HANDS"]:
         character["HANDS"].append(weapon_desc)
@@ -229,8 +227,9 @@ def do_menu():
 
 def main():
     global tables
-    tables["characters"] = load_tables("./tables-characters.json")
     tables["abilities"] = load_tables("./tables-abilities.json")
+    tables["characters"] = load_tables("./tables-characters.json")
+    tables["items"] = load_tables("./tables-items.json")
     tables["magic"] = load_tables("./tables-magic.json")
 
     parser = argparse.ArgumentParser()
