@@ -10,7 +10,7 @@ def load_tables(filename):
         ts = json.load(f)
     return ts
 
-def make_character():
+def make_character(character_level=1):
     c = {}
     c["NOTES"] = []
     c["SPELL SLOTS"] = 0
@@ -23,14 +23,18 @@ def make_character():
     c["BELT"] = []
     c["HANDS"] = []
     # Roll or choose abilities
-    a = random.choice(tables["abilities"]["abilities"])
-    c["STR"], c["DEX"], c["WIL"] = a
-    # Record maximum health
-    c["MAX HEALTH"] = 4
-    c["HEALTH"] = 4
+    scores = random.choice(tables["abilities"]["abilities"])
+    ability_names = tables["abilities"]["ability names"]
+    for ability, score in zip(ability_names, scores):
+        c[ability] = score
+    # Record maximum health (gain_a_level ups this to 4)
+    c["MAX HEALTH"] = 2
+    c["HEALTH"] = 2
     # Choose starting feature
-    f = random.choice(tables["abilities"]["features"])
-    apply_bonus(c, f)
+    c["XP"] = 0
+    c["LEVEL"] = 0
+    for i in range(character_level):
+        gain_a_level(c) # Grants a random new feature at LVL 1
     # Choose six items
     for i in range(6):
         # Duplicates are fine; every item takes a different slot.
@@ -64,8 +68,7 @@ def make_character():
         c["SPELLS"].append(make_random_spell())
     # Record name, level and XP
     c["NAME"] = make_random_name()
-    c["XP"] = 0
-    c["LEVEL"] = 1
+    # (Level and XP calculated above)
     return c
 
 def format_character_sheet(c):
@@ -104,9 +107,13 @@ def apply_bonus(character, feature):
         character[stat] += size
         return True
     elif tokens[0] == "path":
-        path = random.choice(list(tables["abilities"]["paths"].items()))
-        path_description = f"{path[0].title()} (advantage on danger rolls related to {', '.join(path[1])})"
-        character["PATHS"].append(path[0])
+        all_paths = tables["abilities"]["paths"]
+        if len(character["PATHS"]) >= len(all_paths):
+            return False # Can't gain a new path
+        available_paths = set(all_paths.keys()) - set(character["PATHS"])
+        path, skills = random.choice([(p,s) for p,s in all_paths.items() if p in available_paths])
+        path_description = f"{path.title()} (advantage on danger rolls related to {', '.join(skills)})"
+        character["PATHS"].append(path)
         character["NOTES"].append(path_description)
         return True
     else:
@@ -179,6 +186,25 @@ def unequip(character, item):
             character["BACKPACK"].append(item)
             return True
 
+def gain_a_level(c):
+    new_level = c["LEVEL"] + 1
+    c["LEVEL"] = new_level
+    c["XP"] = new_level*(new_level - 1) # Minimum XP required to gain this level
+    apply_bonus(c, "bonus 2 MAX HEALTH")
+    c["HEALTH"] = c["MAX HEALTH"] # Assume level-up happens in a safe place
+    if new_level % 2 == 1:
+        # Can't gain the same path more than once
+        for tries in range(100):
+            feature = random.choice(tables["abilities"]["features"])
+            if apply_bonus(c, feature):
+                break
+        if tries == 99:
+            print("Warning: no bonus from reaching LVL {new_level}.")
+    else:
+        ability = random.choice(tables["abilities"]["ability names"])
+        apply_bonus(c, f"bonus 1 {ability}")
+    pass
+
 def make_random_name():
     # Assume most adventurers (4 in 6) are male
     # (This seems consistent with pulp fantasy)
@@ -201,12 +227,12 @@ def make_random_spell():
     second_word = random.choice(tables["magic"][second_table])
     return f"{first_word} {second_word}".title()
 
-def do_menu():
+def do_menu(character_level=1):
     options = [
     #   (letter, description, function, return code)
     #   A return code of False ends the loop.
         ("a", "Generate random character",
-            (lambda:format_character_sheet(make_character())), True),
+            (lambda:format_character_sheet(make_character(character_level))), True),
         ("b", "Generate random name",
             (lambda:make_random_name()), True),
         ("c", "Generate random spell",
@@ -238,6 +264,11 @@ def main():
         nargs=1,
         default=["0"],
         help="number of complete characters to generate")
+    parser.add_argument("-l",
+        dest="level",
+        nargs=1,
+        default=["1"],
+        help="level of generated characters (default 1)")
     parser.add_argument("-n",
         dest="names",
         nargs=1,
@@ -250,17 +281,19 @@ def main():
         help="number of spells to generate")
     args = parser.parse_args()
     characters = abs(int(args.characters[0]))
+    level = abs(int(args.level[0]))
     names = abs(int(args.names[0]))
     spells = abs(int(args.spells[0]))
 
     if characters + names + spells == 0:
         # Interactive mode
-        while do_menu():
+        while do_menu(level):
             pass
     else:
         # Batch mode
         for i in range(characters):
-            print(format_character_sheet(make_character()))
+            print(format_character_sheet(make_character(level)))
+            print()
         for i in range(names):
             print(make_random_name())
         for i in range(spells):

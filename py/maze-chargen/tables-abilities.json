@@ -1,4 +1,9 @@
 {
+    "ability names": [
+        "STR",
+        "DEX",
+        "WIL"
+    ],
     "abilities": [
         [2, 1, 0],
         [2, 0, 1],
