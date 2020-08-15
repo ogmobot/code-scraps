@@ -39,11 +39,9 @@ def make_character():
     grant_armor(c, "light armor")
     grant_armor(c, "shield")
     for i in range(2):
-        category, weapons = random.choice(
-            list(tables["abilities"]["combat gear"].items()))
-        w = random.choice(weapons)
-        w_desc = f"{w} ({category})"
-        grant_weapon(c, w_desc)
+        category = random.choice(
+            list(tables["abilities"]["combat gear"].keys()))
+        grant_weapon(c, category)
     # Choose background and appearance
     # (Adventurer's gender has been ignored for convenience, but this can
     # lead to situations like female adventurers wearing a mustache or male
@@ -84,7 +82,7 @@ WIL +{c["WIL"]}  HEALTH {"{:2}".format(c["HEALTH"])} ({c["MAX HEALTH"]})
         "HANDS: " + ", ".join(c["HANDS"]),
         "BELT:  " + ", ".join(c["BELT"]),
         "WORN:  " + ", ".join(c["WORN"]),
-        "BACKPACK:\n" + "\n".join(c["BACKPACK"])
+        "BACKPACK:\n" + "\n".join(sorted(c["BACKPACK"]))
     ])
     return ("\n===\n".join([
         left_panel.strip(),
@@ -139,11 +137,12 @@ def grant_armor(character, armor):
         character["BACKPACK"].append(armor)
         return True
 
-def grant_weapon(character, weapon_desc):
+def grant_weapon(character, weapon_category):
     # This will necessarily have a different structure to grant_armor,
     # because we need to check what category weapon_desc is in.
-    weapon, category = weapon_desc[:-1].split(" (")
-    weapon_data = tables["abilities"]["weapon categories"][category]
+    weapon = random.choice(tables["abilities"]["combat gear"][weapon_category])
+    weapon_data = tables["abilities"]["weapon categories"][weapon_category]
+    weapon_desc = f"{weapon} ({weapon_category})"
     if not character["HANDS"]:
         character["HANDS"].append(weapon_desc)
         return True

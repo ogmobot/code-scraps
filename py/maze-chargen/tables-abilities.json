@@ -33,7 +33,7 @@
             "hiding in shadows"
         ]
     },
-    "combat gear": {
+    "weapon names": {
         "light": [
             "axe",
             "dagger",
@@ -68,7 +68,7 @@
             "bonus": 1
         }
     },
-    "weapon categories": {
+    "weapons": {
         "light": {
             "hands": 1
         },
