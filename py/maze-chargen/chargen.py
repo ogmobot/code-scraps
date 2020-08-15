@@ -55,7 +55,7 @@ def make_character():
         c["NOTES"].append(f"{caption}{cfl(var)}")
     # Clothes are always worn, sometimes under armor
     clothing = random.choice(tables["characters"]["clothing"])
-    c["WORN"].append(f"Clothes ({clothing})")
+    c["WORN"].append(f"clothes ({clothing})")
     # Set up spells
     while len(c["SPELLS"]) < c["SPELL SLOTS"]:
         c["SPELLS"].append(make_random_spell())
@@ -64,6 +64,27 @@ def make_character():
     c["XP"] = 0
     c["LEVEL"] = 1
     return c
+
+def format_character_sheet(c):
+    left_panel = f"""
+{c["NAME"]} (LVL {c["LEVEL"]} / {c["XP"]} XP)
+STR +{c["STR"]}  ATTACK +{c["ATTACK"]}
+DEX +{c["DEX"]}  ARMOR  {"{:2}".format(c["ARMOR"])}
+WIL +{c["WIL"]}  HEALTH {"{:2}".format(c["HEALTH"])} ({c["MAX HEALTH"]})
+"""
+    for spell in c["SPELLS"]:
+        left_panel += f"SPELL: {spell}\n"
+    notes_panel = "\n".join(c["NOTES"])
+    equipment_panel = "\n".join([
+        "HANDS: " + ", ".join(c["HANDS"]),
+        "BELT:  " + ", ".join(c["BELT"]),
+        "WORN:  " + ", ".join(c["WORN"]),
+        "BACKPACK:\n" + "\n".join(c["BACKPACK"])
+    ])
+    return ("\n===\n".join([
+        left_panel.strip(),
+        notes_panel.strip(),
+        equipment_panel.strip()]))
 
 def cfl(s):
     # Capitalize first letter only
@@ -81,7 +102,7 @@ def apply_bonus(character, feature):
         return True
     elif tokens[0] == "path":
         path = random.choice(list(tables["abilities"]["paths"].items()))
-        path_description = f"{path[0].title()}: advantage on danger rolls related to {', '.join(path[1])}"
+        path_description = f"{path[0].title()} (advantage on danger rolls related to {', '.join(path[1])})"
         character["PATHS"].append(path[0])
         character["NOTES"].append(path_description)
         return True
