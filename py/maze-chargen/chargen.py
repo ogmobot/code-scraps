@@ -1,6 +1,7 @@
 import json
 import random
 import argparse
+import re
 
 tables = {}
 
@@ -9,6 +10,34 @@ def load_tables(filename):
     with open(filename, "r") as f:
         ts = json.load(f)
     return ts
+
+def parse_table_option(s):
+    m = re.match("{(.*)}", s)
+    if not m:
+        # Literal string
+        return s
+    elif m[1].startswith("*"):
+        # Special cases
+        if m[1] == "*treasure":
+            pass
+        elif m[1] == "*npc":
+            return make_random_name() # TODO make actual NPC?
+        else:
+            # Can't find this special case
+            return s
+    else:
+        # Random table lookup, e.g. {characters:female names}
+        refs = m[1].split(":")
+        d = tables
+        for r in refs:
+            if r in d:
+                d = d[r]
+            else:
+                # Table doesn't exist
+                return s
+        # If we get to this point, d should be a list of strings.
+        # Careful -- this could recurse.
+        return parse_table_option(random.choice(d))
 
 def make_character(character_level=1):
     c = {}
@@ -38,7 +67,7 @@ def make_character(character_level=1):
     # Choose six items
     for i in range(6):
         # Duplicates are fine; every item takes a different slot.
-        c["BACKPACK"].append(random.choice(tables["items"]["items"]))
+        c["BACKPACK"].append(parse_table_option("{items:items}"))
     # Choose combat gear
     grant_armor(c, "light armor")
     grant_armor(c, "shield")
@@ -61,7 +90,7 @@ def make_character(character_level=1):
         var = random.choice(tables["characters"][table_name])
         c["NOTES"].append(f"{caption}{cfl(var)}")
     # Clothes are always worn, sometimes under armor
-    clothing = random.choice(tables["characters"]["clothing"])
+    clothing = parse_table_option("{characters:clothing}")
     c["WORN"].append(f"clothes ({clothing})")
     # Set up spells
     while len(c["SPELLS"]) < c["SPELL SLOTS"]:
@@ -195,13 +224,13 @@ def gain_a_level(c):
     if new_level % 2 == 1:
         # Can't gain the same path more than once
         for tries in range(100):
-            feature = random.choice(tables["abilities"]["features"])
+            feature = parse_table_option("{abilities:features}")
             if apply_bonus(c, feature):
                 break
         if tries == 99:
             print("Warning: no bonus from reaching LVL {new_level}.")
     else:
-        ability = random.choice(tables["abilities"]["ability names"])
+        ability = parse_table_option("{abilities:ability names}")
         apply_bonus(c, f"bonus 1 {ability}")
     pass
 
@@ -209,19 +238,19 @@ def make_random_name():
     # Assume most adventurers (4 in 6) are male
     # (This seems consistent with pulp fantasy)
     gender = random.choices(["male", "female"], (4, 2)).pop()
-    firstname = random.choice(tables["characters"][f"{gender} names"])
+    firstname = parse_table_option(f"{{characters:{gender} names}}")
     # Assume most adventurers (4 in 6) have lower class surnames
     # (This seems consistent with pulp fantasy)
     society = random.choices(["lower class", "upper class"], (4, 2)).pop()
     if society == "upper class" and random.randint(1, 36) == 1:
         # "This table can also be used for upper-class first names,
         #  if you want them to sound extra snobby."
-        firstname = random.choice(tables["characters"]["upper class surnames"])
-    surname = random.choice(tables["characters"][f"{society} surnames"])
+        firstname = parse_table_option("{characters:upper class surnames}")
+    surname = parse_table_option(f"{{characters:{society} surnames}}")
     return f"{firstname} {surname}".title()
 
 def make_random_spell():
-    category = random.choice(tables["magic"]["categories"])
+    category = parse_table_option("{magic:categories}")
     first_table, second_table = category.split(", ")
     first_word = random.choice(tables["magic"][first_table])
     second_word = random.choice(tables["magic"][second_table])

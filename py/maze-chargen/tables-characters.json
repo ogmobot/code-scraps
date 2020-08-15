@@ -89,16 +89,36 @@
         "slee", "slitherly", "stoker", "tarwater", "tumbler", "villin"
     ],
     "assets": [
-        "authority"
+        "authority", "avoids detection", "calls in favors", "charming", "cooks the books", "erases evidence",
+        "excellent liar", "extremely rich", "{cities:factions}-leader", "{cities:factions}-member", "feared", "fortified base",
+        "gorgeous", "hears rumors", "huge family", "huge library", "impersonator", "interrogator",
+        "knows a guy", "knows a way in", "launders money", "learned", "local celebrity", "local knowledge",
+        "loyal henchmen", "middling oracle", "nothing to lose", "owns the guards", "powerful spouse", "procures gear",
+        "pulls the strings", "secret lab", "sells contraband", "smuggles goods", "spy network", "war hero"
     ],
     "liabilities": [
-        "addiction"
+        "addiction", "alcoholic", "corrupt ally", "coward", "decadent", "forbidden love",
+        "gambler", "glutton", "greedy", "heretic", "huge debts", "imposter",
+        "{magic:insanities}", "jealous", "leaves evidence", "many enemies", "misinformed", "money trail",
+        "narcissist", "needs medicine", "OCD", "paranoid", "partyer", "poor equipment",
+        "protective", "scandalous", "softhearted", "strict routines", "superstitious", "suspicious",
+        "temper", "trusting", "vulnerable base", "wanted", "weak-willed", "widely despised"
     ],
     "npc goals": [
-        "a better life"
+        "a better life", "acceptance", "acquire {*treasure}", "craft {*treasure}", "destroy {cities:factions}", "destroy {*treasure}",
+        "enlightenment", "fame", "found {cities:factions}", "freedom", "glory", "impress {*npc}",
+        "infamy", "infiltrate {cities:factions}", "justic", "kidnap {*npc}", "lead {cities:factions}", "learning",
+        "locate {*npc}", "love", "mastery", "power", "reach location", "rescue {*npc}",
+        "resolve dispute", "restore {cities:factions}", "reveal a secret", "revenge", "sabotage {cities:faction}", "serve a deity",
+        "serve evil", "serve {cities:faction}", "serve ideology", "serve leader", "serve the needy", "wealth"
     ],
     "misfortunes": [
-        "abandoned"
+        "abandoned", "addicted", "arrested", "blackmailed", "burgled", "challenged",
+        "condemned", "crippled", "cursed", "defrauded", "demoted", "depressed",
+        "discredited", "dismissed", "disowned", "exiled", "famished", "forgotten",
+        "framed", "haunted", "humiliated", "impoverished", "kidnapped", "lost",
+        "mobbed", "mutilated", "overworked", "poisoned", "pursued", "rejected",
+        "replaced", "robbed", "sick", "sued", "suspected", "transformed"
     ],
     "missions": [
         "apprehend"
@@ -119,7 +139,7 @@
         "adviser"
     ],
     "divine domains": [
-        "{animal}"
+        "{monsters:animals}"
     ],
     "after the party": [
         "absurd boasts"
