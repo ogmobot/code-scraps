@@ -1,6 +1,31 @@
 # This version is designed to work on spells
 # that were copy-pasted from d20pfsrd.
 
+# Example interaction
+#
+## Light
+## 
+## School evocation [light]; Level bard 0, cleric/oracle 0, druid 0, ...
+## 
+## CASTING
+## 
+## Casting Time 1 standard action
+## Components V, M/DF (a firefly)
+## 
+## EFFECT
+## 
+## Range touch
+## Target object touched
+## Duration 10 min./level
+## Saving Throw none; Spell Resistance no
+## 
+## DESCRIPTION
+## 
+## This spell causes a touched object to glow like a torch, shedding normal...
+## 
+## You can only have one light spell active at any one time. If you cast...
+
+
 import sys
 DEBUG = False
 # Create a list of attributes so they can be detected and ordered appropriately
@@ -44,7 +69,7 @@ def build_spell_from_string(input_string):
         elif line.lower().startswith("school"):
             schooltext, _ = line.split(";", 1)
             output_spell.school = schooltext.split(" ",1)[1].title()
-        elif (line.lower().startswith("saving throw")) and ("spell resistance" in line):
+        elif (line.lower().startswith("saving throw")) and ("spell resistance" in line.lower()):
             index = line.lower().index("spell resistance")
             savthrow, spellres = line[:index], line[index:]
             input_lines.insert(0, savthrow.strip())
