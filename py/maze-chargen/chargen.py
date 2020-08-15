@@ -41,8 +41,8 @@ def make_character():
         category, weapons = random.choice(
             list(tables["abilities"]["combat gear"].items()))
         w = random.choice(weapons)
-        w_desc = f"{w} ({category} weapon)"
-        c["BACKPACK"].append(w_desc)
+        w_desc = f"{w} ({category})"
+        grant_weapon(c, w_desc)
     # Choose background and appearance
     for (table_name, caption) in [
         ("appearances",      "Appearance:      "),
@@ -133,6 +133,50 @@ def grant_armor(character, armor):
         # Stash armor
         character["BACKPACK"].append(armor)
         return True
+
+def grant_weapon(character, weapon_desc):
+    # This will necessarily have a different structure to grant_armor,
+    # because we need to check what category weapon_desc is in.
+    weapon, category = weapon_desc[:-1].split(" (")
+    weapon_data = tables["abilities"]["weapon categories"][category]
+    if not character["HANDS"]:
+        character["HANDS"].append(weapon_desc)
+        return True
+    elif character["HANDS"] == ["shield"]:
+        if weapon_data["hands"] == 2:
+            # 2H weapon replaces shield
+            unequip(character, "shield")
+            character["HANDS"].append(weapon_desc)
+            return True
+        elif weapon_data["hands"] == 1:
+            # 1H weapon complements shield
+            character["HANDS"].append(weapon_desc)
+            return True
+    # Try the belt, if there's room
+    elif len(character["BELT"]) < 2:
+        character["BELT"].append(weapon_desc)
+        return True
+    else:
+        character["BACKPACK"].append(weapon_desc)
+        return True
+
+def unequip(character, item):
+    # Moves the given item from hands to belt or backpack
+    if item not in character["HANDS"]:
+        return False
+    else:
+        character["HANDS"].remove(item)
+        if item == "shield":
+            # Right now, "shield" is the only object that improves armor
+            # when held in hands
+            character["ARMOR"] -= 1
+        if len(character["BELT"]) < 2:
+            character["BELT"].append(item)
+            return True
+        else:
+            character["BACKPACK"].append(item)
+            return True
+            
 
 def make_random_name():
     gender = random.choice(["male", "female"])

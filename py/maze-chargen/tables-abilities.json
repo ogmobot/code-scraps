@@ -67,5 +67,16 @@
             "slot": "HANDS",
             "bonus": 1
         }
+    },
+    "weapon categories": {
+        "light": {
+            "hands": 1
+        },
+        "heavy": {
+            "hands": 2
+        },
+        "ranged": {
+            "hands": 2
+        }
     }
 }
