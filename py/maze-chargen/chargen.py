@@ -43,6 +43,9 @@ def make_character():
         w = random.choice(weapons)
         w_desc = f"{w} ({category} weapon)"
         c["BACKPACK"].append(w_desc)
+    # Set up spells
+    while len(c["SPELLS"]) < c["SPELL SLOTS"]:
+        c["SPELLS"].append(make_random_spell())
     # Record name, level and XP
     c["NAME"] = make_random_name()
     c["XP"] = 0
@@ -101,6 +104,13 @@ def make_random_name():
         firstname = random.choice(tables["characters"]["upper class surnames"])
     surname = random.choice(tables["characters"][f"{society} surnames"])
     return f"{firstname} {surname}".title()
+
+def make_random_spell():
+    category = random.choice(tables["magic"]["categories"])
+    first_table, second_table = category.split(", ")
+    first_word = random.choice(tables["magic"][first_table])
+    second_word = random.choice(tables["magic"][second_table])
+    return f"{first_word} {second_word}".title()
 
 def main():
     global tables
