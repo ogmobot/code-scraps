@@ -203,11 +203,37 @@ def make_random_spell():
     second_word = random.choice(tables["magic"][second_table])
     return f"{first_word} {second_word}".title()
 
+def do_menu():
+    options = [
+    #   (letter, description, function, return code)
+    #   A return code of False ends the loop.
+        ("a", "Generate random character",
+            (lambda:format_character_sheet(make_character())), True),
+        ("b", "Generate random name",
+            (lambda:make_random_name()), True),
+        ("c", "Generate random spell",
+            (lambda:make_random_spell()), True),
+        ("q", "Quit",
+            (lambda:None), False)]
+    for t in options:
+        print(f"{t[0]}) {t[1]}")
+    choice = input("> ")
+    for t in options:
+        if choice.lower() == t[0]:
+            result = t[2]()
+            if result:
+                print(f"\n{result}\n")
+            return t[3]
+    print(f"Sorry, I don't understand \"{choice}\".")
+    return True
+
 def main():
     global tables
     tables["characters"] = load_tables("./tables-characters.json")
     tables["abilities"] = load_tables("./tables-abilities.json")
     tables["magic"] = load_tables("./tables-magic.json")
+    while do_menu():
+        pass
 
 if __name__ == "__main__":
     main()
