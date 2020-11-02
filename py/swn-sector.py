@@ -68,8 +68,71 @@ def make_random_stars(hexmap):
                 hexmap[(coord[0], coord[1])] = new_star
     return
 
+def random_planet_name():
+    result = ""
+    syllables = random.choices(*zip(
+        (1, 1),
+        (2, 5),
+        (3, 3),
+        (4, 1))).pop()
+    for syllable in range(syllables):
+        prefix = random.choices(*zip(
+            ("",  25),
+            ("t",  5),
+            ("p",  5),
+            ("ch", 5),
+            ("k",  3),
+            ("c",  2),
+            ("d",  5),
+            ("b",  5),
+            ("j",  5),
+            ("g",  5),
+            ("th", 5),
+            ("f",  5),
+            ("sh", 5),
+            ("v",  5),
+            ("s",  5),
+            ("h",  5),
+            ("w",  5)
+        )).pop()
+        vowel = random.choices(*zip(
+            ("a", 14),
+            ("e", 13),
+            ("i", 14),
+            ("o", 13),
+            ("u", 10),
+            ("ai", 5),
+            ("ea", 5),
+            ("ee", 3),
+            ("oo", 3),
+            ("au", 2),
+            ("ie", 2),
+            ("oa", 2),
+            ("ou", 2))).pop()
+        suffix = random.choices(*zip(
+            ("",  40),
+            ("t",  5),
+            ("p",  5),
+            ("ch", 5),
+            ("ck", 3),
+            ("c",  2),
+            ("d",  5),
+            ("b",  5),
+            ("g",  5),
+            ("th", 5),
+            ("sh", 5),
+            ("v",  5),
+            ("s",  5),
+            (" ",  3),
+            ("-",  2)
+        )).pop()
+        result += prefix + vowel + suffix
+    return result.strip("- ").title()
+
 def setup_planet(planet, prop):
-    if prop == "tags":
+    if prop == "name":
+        planet["name"] = random_planet_name()
+    elif prop == "tags":
         planet["tags"] = random.sample([
             "Abandoned Colony",     "Flying Cities",        "Misandry/Misogyny",    "Rigid Culture",
             "Alien Ruins",          "Forbidden Tech",       "Night World",          "Rising Hegemon",
@@ -99,20 +162,71 @@ def setup_planet(planet, prop):
         ], 2)
         return
     elif prop == "atmosphere":
+        planet["atmosphere"] = random.choices(*zip(
+                                            # 2d6
+            ("Corrosive",               1), #   2
+            ("Inert",                   2), #   3
+            ("Thin",                    3), #   4
+            ("Breathable",             24), # 5-9
+            ("Thick",                   3), #  10
+            ("Invasive",                2), #  11
+            ("Corrisive and invasive",  1)  #  12
+        )).pop()
         return
     elif prop == "temperature":
+        planet["temperature"] = random.choices(*zip(
+                                        # 2d6
+            ("Frozen",              1), #   2
+            ("Cold",                2), #   3
+            ("Variable cold",       7), # 4-5
+            ("Temperate",          16), # 6-8
+            ("Variable warm",       7), #9-10
+            ("Warm",                2), #  11
+            ("Burning",             1)  #  12
+        )).pop()
         return
     elif prop == "biosphere":
+        planet["biosphere"] = random.choices(*zip(
+                                        # 2d6
+            ("Remnant",             1), #   2
+            ("Microbial",           2), #   3
+            ("No native biosphere", 7), # 4-5
+            ("Human-miscible",     16), # 6-8
+            ("Immiscible",          7), #9-10
+            ("Hybrid",              2), #  11
+            ("Engineered",          1)  #  12
+        )).pop()
         return
     elif prop == "population":
+        planet["population"] = random.choices(*zip(
+                                        # 2d6
+            ("Failed colony (0)",   1), #   2
+            ("Outpost (under 1000)",2), #   3
+            ("Under 1 million",     7), # 4-5
+            ("Several million",    16), # 6-8
+            ("Hundreds of millions",7), #9-10
+            ("Several billion",     2), #  11
+            ("Alien civilization",  1)  #  12
+        )).pop()
         return
     elif prop == "tech level":
+        planet["tech level"] = random.choices(*zip(
+                                                    # 2d6
+            ("TL0 (neolothic)",                 1), #   2
+            ("TL1 (medieval)",                  2), #   3
+            ("TL2 (early industrial)",          7), # 4-5
+            ("TL4 (modern postech)",           16), # 6-8
+            ("TL3 (modern-day Earth tech)",     7), #9-10
+            ("TL4+ (postech with specialties)", 2), #  11
+            ("TL5 (surviving pretech)",         1), #  12
+        )).pop()
         return
     else:
         raise ValueError(f"Tried to set unknown planet prop ({prop})")
 
 def make_planet():
     planet = {}
+    setup_planet(planet, "name")
     setup_planet(planet, "tags")
     setup_planet(planet, "atmosphere")
     setup_planet(planet, "temperature")
@@ -155,7 +269,17 @@ def grid_coords(x, y):
 
 def star_desc(stardict):
     # returns a string representation of a dict representing a star
-    return repr(stardict)
+    result = ""
+    for planet in stardict.get("planets", []):
+        result += f"""
+* {planet.get("name", "planet")}
+  Tags:        {", ".join(planet.get("tags", []))}
+  Atmosphere:  {planet.get("atmosphere", "")}
+  Temperature: {planet.get("temperature", "")}
+  Biosphere:   {planet.get("biosphere", "")}
+  Population:  {planet.get("population", "")}
+  Tech Level:  {planet.get("tech level", "")}"""
+    return result
 
 def print_sector_map(hexmap):
     # Displays a keyed hex map
