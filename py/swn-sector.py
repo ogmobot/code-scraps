@@ -121,7 +121,7 @@ def random_planet_name():
             ("g",  5),
             ("th", 5),
             ("sh", 5),
-            ("v",  5),
+            ("gh", 5),
             ("s",  5),
             (" ",  3),
             ("-",  2)
@@ -310,3 +310,10 @@ def print_sector_map(hexmap):
         # Already sorted -- don't change order!
         print(f"{index + 1:02}: {star_desc(star[1])}")
     return
+
+def main():
+    print_sector_map(make_sector_map())
+    return
+
+if __name__ == "__main__":
+    main()
