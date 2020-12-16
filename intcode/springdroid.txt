@@ -1,0 +1,34 @@
+(part 1)
+
+@
+#. => jump (~A)
+
+@
+##..# => jump (A ~B ~C D)
+
+@
+##.## => jump (A ~B C D)
+
+@
+###.# => jump (A B ~C D)
+
+(or ~A (and D ~(and B C)))
+
+@
+###.. => don't jump (A B ~C ~D)
+
+@
+####. => don't jump (A B C ~D)
+
+@
+##### => don't jump (A B C D)
+
+@
+##.#. => don't jump (A ~B C ~D)
+
+@
+##.#. => don't jump (A ~B C ~D)
+
+@
+##... => don't jump (A ~B ~C ~D)
+
