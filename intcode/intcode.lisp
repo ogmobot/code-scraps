@@ -160,33 +160,27 @@
 (defun cpu-run (cpu)
     (loop
         for result = (cpu-step cpu)
-        when (equal result :output) do (cpu-output cpu)
+        when (eql result :output) do (cpu-output cpu)
         while (member result '(:okay :output))
         finally (return (cons result cpu))))
 
 (defun cpu-run-until (cpu stop-sigs)
     (loop
         for result = (cpu-step cpu)
-        while (not (member result (cons :halt stop-sigs) :test #'equal))
+        while (not (member result (cons :halt stop-sigs) :test #'eql))
         finally (return (cons result cpu))))
     
-(defun cpu-run-ascii (cpu)
+(defun cpu-run-ascii (cpu &key supress-output)
     (loop
         for result = (cpu-step cpu)
-        when (equal result :output)
+        when (eql result :output)
             do (let ((output (cpu-peek-output cpu)))
                 (if (<= output 255)
-                    (write-char (code-char output))
+                    (if (not supress-output)
+                        (write-char (code-char output)))
                     (format t "~a~%" output)))
-        when (equal result :input)
+        when (eql result :input)
             do (cpu-poke-input cpu (char-code (read-char)))
         do (finish-output)
         until (eql result :halt)
         finally (return (cons result cpu))))
-
-(defun run-day17 ()
-    (let ((rom (file->numeric-list #p"input17.txt")))
-        ; part 1
-        (let ((cpu (make-cpu rom)))
-            (cpu-run-ascii cpu)))
-    nil)

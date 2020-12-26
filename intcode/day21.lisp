@@ -2,5 +2,5 @@
 
 (let ((rom (file->numeric-list #p"input21.txt")))
     (let ((cpu (make-cpu rom)))
-        (cpu-run-ascii cpu))
+        (cpu-run-ascii cpu :supress-output t))
     nil)
