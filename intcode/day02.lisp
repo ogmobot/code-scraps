@@ -7,7 +7,7 @@
         (cpu-set-memory cpu 2 02)
         (format t "~a~%" (cpu-get-memory (cdr (cpu-run cpu)) 0)))
     ; part 2
-    (format t "~a~a~%"
+    (format t "~a~%"
     (loop named outer for noun from 0 upto 99
         do (loop
             for verb from 0 upto 99

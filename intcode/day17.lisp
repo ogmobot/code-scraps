@@ -79,6 +79,6 @@
         (format t "~a~%"
             (apply '+ (find-alignment buffer))))
     ; part 2
-    (let* ((new-rom (cons 2 (cdr rom)))
-           (cpu (make-cpu new-rom)))
+    (let ((cpu (make-cpu rom)))
+        (cpu-set-memory cpu 0 2) ; programmable mode
         (cpu-run-ascii cpu :supress-output t)))
