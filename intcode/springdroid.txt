@@ -7,10 +7,10 @@
 ##..# => jump (A ~B ~C D)
 
 @
-##.## => jump (A ~B C D)
+##.## => jump (A ~B C D) *not necessarily
 
 @
-###.# => jump (A B ~C D)
+###.# => jump (A B ~C D) *not necessarily
 
 (or ~A (and D ~(and B C)))
 
@@ -32,3 +32,10 @@
 @
 ##... => don't jump (A ~B ~C ~D)
 
+(part 2)
+
+@
+###.#.##. => don't jump (~H)
+ ABCDEFGHI
+
+(or ~A (and D (and H ~(and B C))))

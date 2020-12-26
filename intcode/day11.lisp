@@ -55,9 +55,7 @@
     ; part 1
     (format t "~a~%"
         ;(draw-panels (run-robot rom 0)))
-        (length
-        (remove-duplicates (mapcar #'car (run-robot rom 0)) :test #'equal))
-        )
+        (length (remove-duplicates (mapcar #'car (run-robot rom 0)) :test #'equal)))
     ; part 2
     (format t "~a~%" (draw-panels (run-robot rom 1))))
 
