@@ -47,6 +47,7 @@
           (score 0)
           (draw-counter 0))
         (cpu-set-memory cpu 0 2) ; insert quarters
+        (format t "~a~%"
         (loop
             for result = (cpu-run-until cpu '(:input :output))
             while (not (equal (car result) :halt))
@@ -71,7 +72,7 @@
                                 (if (= tile-id 3) (setf paddlex x))
                                 (if (= tile-id 4) (setf ballx x))
                                 (write-to-buffer screen x y tile-id))))))
-            when (and (> draw-counter (* 42 20)) (= 0 (mod draw-counter 10))) do (progn
-                (loop for i from 0 upto 80 do (format t "~%"))
-                (draw-buffer screen score))
-            finally (return score))))
+            ;when (and (> draw-counter (* 42 20)) (= 0 (mod draw-counter 10))) do (progn
+                ;(loop for i from 0 upto 80 do (format t "~%"))
+                ;(draw-buffer screen score))
+            finally (return score)))))

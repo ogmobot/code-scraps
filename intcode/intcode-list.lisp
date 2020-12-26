@@ -1,18 +1,15 @@
 (require :uiop)
 
 (defun file->numeric-list (filename)
-    ; actually numeric vector
     (with-open-file (stream filename)
-        (let ((initial
-            (mapcar #'parse-integer (uiop:split-string (read-line stream nil) :separator ","))))
-            (make-array (length initial) :initial-contents initial :adjustable t))))
+        (mapcar #'parse-integer (uiop:split-string (read-line stream nil) :separator ","))))
 
 (defun digit-at (value place) ; e.g. (digit-at 3456 100) => 4
     (mod (floor (/ value place)) 10))
 
 (defun make-cpu (program)
     ; structure: (pc memory input-buffer output-buffer relative-base)
-    (list 0 (copy-seq program) nil nil 0))
+    (list 0 (copy-list program) nil nil 0))
 
 (defun cpu-get-pc (cpu)
     (car cpu))
@@ -20,20 +17,21 @@
 (defun cpu-set-pc (cpu val)
     (setf (car cpu) val))
 
-(defun stretch (long-vector min-size)
-    (if (> min-size (length long-vector))
-        (setf long-vector (adjust-array long-vector (list min-size) :initial-element 0))
-        long-vector))
+(defun stretch (long-list min-size)
+    (append
+        long-list
+        (loop for n upto (- min-size (length long-list))
+            collect 0)))
 
 (defun cpu-get-memory (cpu addr)
-    (setf (cadr cpu) (stretch (cadr cpu) (+ addr 1)))
+    (setf (cadr cpu) (stretch (cadr cpu) addr))
     (let ((memory (cadr cpu)))
-        (aref memory addr)))
+        (nth addr memory)))
 
 (defun cpu-set-memory (cpu addr val)
-    (setf (cadr cpu) (stretch (cadr cpu) (+ addr 1)))
+    (setf (cadr cpu) (stretch (cadr cpu) addr))
     (let ((memory (cadr cpu)))
-        (setf (aref memory addr) val)))
+        (setf (nth addr memory) val)))
 
 (defun cpu-get-offset (cpu)
     (cadddr (cdr cpu)))
