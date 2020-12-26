@@ -71,7 +71,7 @@
 ;                do (setf (aref buffer row col) ch)))
 ;        (format t "~s~%" (find-alignment buffer)))
             
-(let ((rom (file->numeric-list #p"input17.txt")))
+(let ((rom (make-rom #p"input17.txt")))
     ; part 1
     (let* ((cpu (make-cpu rom))
            (buffer (make-char-buffer cpu)))

@@ -72,7 +72,7 @@
             (cons nat t)) ; sent nat to address 0
         (cons nat nil)))) ; did not send nat
 
-(let ((rom (file->numeric-list #p"input23.txt")))
+(let ((rom (make-rom #p"input23.txt")))
     ; part 1
     (let ((network (make-network rom 50)) (nat '()))
         (loop

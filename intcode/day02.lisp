@@ -1,6 +1,6 @@
 (load #p"intcode.lisp")
 
-(let ((rom (file->numeric-list #p"input02.txt")))
+(let ((rom (make-rom #p"input02.txt")))
     ; part 1
     (let ((cpu (make-cpu rom)))
         (cpu-set-memory cpu 1 12)

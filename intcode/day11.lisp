@@ -51,7 +51,7 @@
                     (otherwise y)))))
         panels))
 
-(let ((rom (file->numeric-list #p"input11.txt")))
+(let ((rom (make-rom #p"input11.txt")))
     ; part 1
     (format t "~a~%"
         ;(draw-panels (run-robot rom 0)))

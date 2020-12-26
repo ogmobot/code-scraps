@@ -1,6 +1,6 @@
 (require :uiop)
 
-(defun file->numeric-list (filename)
+(defun make-rom (filename)
     ; actually numeric vector
     (with-open-file (stream filename)
         (let ((initial

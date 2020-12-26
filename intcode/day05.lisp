@@ -1,6 +1,6 @@
 (load #p"intcode.lisp")
 
-(let ((rom (file->numeric-list #p"input05.txt")))
+(let ((rom (make-rom #p"input05.txt")))
     ; part 1
     (let ((cpu (make-cpu rom)))
         (setf (caddr cpu) 1)

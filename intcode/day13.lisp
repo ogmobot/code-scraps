@@ -20,7 +20,7 @@
                         for col from 0 upto (- (car dims) 1)
                         collect (aref buffer col row)))))))
 
-(let ((rom (file->numeric-list #p"input13.txt")))
+(let ((rom (make-rom #p"input13.txt")))
     ; part 1
     (format t "~a~%"
     (let ((cpu (make-cpu rom))

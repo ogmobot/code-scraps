@@ -7,7 +7,7 @@
                 append (mapcar (lambda (l) (cons element l))
                     (permutations (remove element l)))))))
 
-(let ((rom (file->numeric-list #p"input07.txt")))
+(let ((rom (make-rom #p"input07.txt")))
     ; part 1
     (format t "~a~%"
         (loop for p in (permutations '(0 1 2 3 4))
