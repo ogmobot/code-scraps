@@ -1,6 +1,6 @@
-CC=zig cc
-CFLAGS=-lc
-SOURCES=rsa-encode.c modexp.c
+CC=gcc
+CFLAGS=-Wall
+SOURCES=rsa-encode.c numeric.c
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=rsa-encode
 
