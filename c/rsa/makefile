@@ -1,5 +1,5 @@
-CC=gcc
-CFLAGS=-Wall
+CC=zig cc
+CFLAGS=-lc
 SOURCES=rsa-encode.c modexp.c
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=rsa-encode
@@ -14,3 +14,4 @@ $(EXECUTABLE): $(OBJECTS)
 
 clean:
 	rm -f *.o
+	rm -rf zig-cache/

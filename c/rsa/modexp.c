@@ -7,13 +7,16 @@ unsigned long modexp(unsigned long b, unsigned int e, unsigned long m) {
 	return result;
 }
 */
-unsigned long modexp(unsigned long b, unsigned int e, unsigned long m) {
-	unsigned long c = 1;
-	unsigned int i;
-	for (i=0; i<e; i++) {
-		c = (b * c) % m;
-	}
-	return c;
+
+/* Method of repeated squares */
+unsigned long long modexp(unsigned long long b, unsigned long long e, unsigned long long m) {
+	unsigned long long result = 1;
+    while (e > 0) {
+        if (e % 2) result = (result * b) % m;
+        e >>= 1;
+        b = (b * b) % m;
+    }
+    return result;
 }
 
 /*
