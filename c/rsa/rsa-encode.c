@@ -72,6 +72,7 @@ void encode_msg_to_buffer(char * msg, char * buffer, struct key k) {
     }
     *buf = 0;
     return;
+#undef CHUNK_SIZE
 }
 
 void print_as_hex(char * buffer) {
