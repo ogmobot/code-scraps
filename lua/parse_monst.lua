@@ -468,8 +468,8 @@ end
 
 format_as_tex = function(monster)
     local result = ""
-    result = result .. "\\monstername{" .. monster["name"] .. "}\n\n"
-    result = result .. "\\textit{" .. monster["appearance"] .. "}\n\n"
+    result = result .. "\\monstername{" .. first_upper(monster["name"]) .. "}\n\n"
+    result = result .. "\\textit{" .. first_upper(monster["appearance"]) .. "}\n\n"
     local output_lines = {
         {"Armour Class", "armour class"},
         {"Hit Dice", "hit dice"},
@@ -482,16 +482,18 @@ format_as_tex = function(monster)
     for _, vals in ipairs(output_lines) do
         result = result .. "\\monsterstat{" .. vals[1] .. ":} \\monsterval{"
         if type(monster[vals[2]]) == "table" then
+            local tmp_string = ""
             if #monster[vals[2]] == 0 then
-                result = result .. "none"
+                tmp = tmp_string .. "None"
             else
                 for index, subval in ipairs(monster[vals[2]]) do
-                    result = result .. subval
+                    tmp_string = tmp_string .. subval
                     if index ~= #monster[vals[2]] then
-                        result = result .. ", "
+                        tmp_string = tmp_string .. ", "
                     end
                 end
             end
+            result = result .. first_upper(tmp_string)
         else
             result = result .. first_upper(monster[vals[2]])
         end
