@@ -137,7 +137,7 @@ merge_flags = function(text)
     return flags
 end
 
-calculate_hit_dice = function(monster)
+determine_hit_dice = function(monster)
     -- no return value
     local hd = monster["mlevel"] or 0
     local hd_string = ""
@@ -170,6 +170,130 @@ calculate_hit_dice = function(monster)
         hd_string = hd .. "d8"
     end
     monster["hit dice"] = hd_string
+end
+
+determine_appearance = function(monster)
+    local symbols = {
+        S_ANT = "insect",
+        S_BLOB = "blob",
+        S_COCKATRICE = "cockatrice",
+        S_DOG = "canine",
+        S_EYE = "eye",
+        S_FELINE = "feline",
+        S_GREMLIN = "gremlin",
+        S_HUMANOID = "humanoid",
+        S_IMP = "imp",
+        S_JELLY = "jelly",
+        S_KOBOLD = "kobold",
+        S_LEPRECHAUN = "leprechaun",
+        S_MIMIC = "mimic",
+        S_NYMPH = "nymph",
+        S_ORC = "orc",
+        S_PIERCER = "piercer",
+        S_QUADRUPED = "quadruped",
+        S_RODENT = "rodent",
+        S_SPIDER = "arachnid",
+        S_TRAPPER = "trapper",
+        S_UNICORN = "horse",
+        S_VORTEX = "vortex",
+        S_WORM = "worm",
+        S_XAN = "xan",
+        S_LIGHT = "light",
+        S_ZRUTY = "beast",
+        S_ANGEL = "angel",
+        S_BAT = "bat",
+        S_CENTAUR = "centaur",
+        S_DRAGON = "dragon",
+        S_ELEMENTAL = "elemental",
+        S_FUNGUS = "fungus",
+        S_GNOME = "gnome",
+        S_GIANT = "giant humanoid",
+        S_JABBERWOCK = "jabberwock",
+        S_KOP = "policeman",
+        S_LICH = "lich",
+        S_MUMMY = "mummy",
+        S_NAGA = "naga",
+        S_OGRE = "ogre",
+        S_PUDDING = "pudding",
+        S_QUANTMECH = "scientist",
+        S_RUSTMONST = "rust monster",
+        S_SNAKE = "snake",
+        S_TROLL = "troll",
+        S_UMBER = "umber hulk",
+        S_VAMPIRE = "vampire",
+        S_WRAITH = "wraith",
+        S_XORN = "xorn",
+        S_YETI = "primate",
+        S_ZOMBIE = "zombie",
+        S_HUMAN = "human",
+        S_GHOST = "ghost",
+        S_GOLEM = "golem",
+        S_DEMON = "demon",
+        S_EEL = "sea-creature",
+        S_LIZARD = "lizard",
+    }
+    local colours = {
+        CLR_BLACK = "black",
+        CLR_RED = "red",
+        CLR_GREEN = "green",
+        CLR_BROWN = "brown",
+        CLR_BLUE = "blue",
+        CLR_MAGENTA = "magenta",
+        CLR_CYAN = "cyan",
+        CLR_GRAY = "grey",
+        CLR_ORANGE = "orange",
+        CLR_BRIGHT_GREEN = "bright green",
+        CLR_YELLOW = "yellow",
+        CLR_BRIGHT_BLUE = "bright blue",
+        CLR_BRIGHT_MAGENTA = "bright magenta",
+        CLR_BRIGHT_CYAN = "bright cyan",
+        CLR_WHITE = "white",
+
+        HI_METAL = "metallic",
+        HI_COPPER = "copper",
+        HI_SILVER = "silver",
+        HI_GOLD = "golden",
+        HI_LEATHER = "leather",
+        HI_CLOTH = "cloth",
+        HI_ORGANIC = "organic",
+        HI_WOOD = "wooden",
+        HI_PAPER = "paper",
+        HI_GLASS = "glass",
+        HI_MINERAL = "rock",
+        DRAGON_SILVER = "silver",
+        HI_ZAP = "magical",
+
+        HI_DOMESTIC = "domestic",
+        HI_LORD = "noble",
+    }
+    monster["appearance"] = (colours[monster["colour"]] or "[colour]")
+    monster["appearance"] = monster["appearance"] .. " " .. (symbols[monster["symbol"]] or "[symbol]")
+end
+
+determine_speed = function(monster)
+    -- 12 is ordinary human
+    monster["speed"] = "[speed]"
+    mmove = monster["mmove"]
+    if mmove == 0 then
+        monster["speed"] = "does not move"
+    elseif mmove >= 28 then
+        monster["speed"] = "extraordinarily fast"
+    elseif mmove >= 24 then
+        monster["speed"] = "extremely fast"
+    elseif mmove >= 20 then
+        monster["speed"] = "very fast"
+    elseif mmove >= 16 then
+        monster["speed"] = "fast"
+    elseif mmove >= 12 then
+        monster["speed"] = "medium"
+    elseif mmove >= 6 then
+        monster["speed"] = "slow"
+    elseif mmove >= 3 then
+        monster["speed"] = "very slow"
+    else
+        monster["speed"] = "extremely slow"
+    end
+    monster["speed"] = monster["speed"] .. " (" .. mmove .. ")"
 end
 
 parse_monster = function(text)
@@ -236,25 +360,46 @@ parse_monster = function(text)
         index = finish + 1
     end
 
-    monster["flags"] = {}
-    monster["extra flags"] = {} -- probably don't need these for print version
+    monster["m1 flags"] = {}
     start, finish, tmp_string = text:find("([^,]*),%s*", index)
     if start then
-        monster["flags"] = concat_lists(monster["flags"], merge_flags(tmp_string))
+        if tmp_string ~= "0" then
+            monster["m1 flags"] = merge_flags(tmp_string)
+        end
         index = finish + 1
     end
+    monster["m2 flags"] = {}
     start, finish, tmp_string = text:find("([^,]*),%s*", index)
     if start then
-        monster["extra flags"] = concat_lists(monster["extra flags"], merge_flags(tmp_string))
+        if tmp_string ~= "0" then
+            monster["m2 flags"] = merge_flags(tmp_string)
+        end
         index = finish + 1
     end
+    monster["m3 flags"] = {}
     start, finish, tmp_string = text:find("([^,]*),%s*", index)
     if start then
-        monster["extra flags"] = concat_lists(monster["extra flags"], merge_flags(tmp_string))
+        if tmp_string ~= "0" then
+            monster["m3 flags"] = merge_flags(tmp_string)
+        end
         index = finish + 1
     end
 
-    calculate_hit_dice(monster)
+    -- find difficulty, then ignore it for now
+    start, finish, tmp_string = text:find("([^,]*),%s*", index)
+    if start then
+        index = finish + 1
+    end
+
+    start, finish, tmp_string = text:find("([^%)]*)%),?%s*", index)
+    if start then
+        monster["colour"] = tmp_string
+        index = finish + 1
+    end
+
+    determine_hit_dice(monster)
+    determine_appearance(monster)
+    determine_speed(monster)
  
 ---[[
     for k, v in pairs(monster) do
