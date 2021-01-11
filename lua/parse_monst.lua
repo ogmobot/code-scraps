@@ -484,7 +484,7 @@ format_as_tex = function(monster)
         if type(monster[vals[2]]) == "table" then
             local tmp_string = ""
             if #monster[vals[2]] == 0 then
-                tmp = tmp_string .. "None"
+                tmp_string = tmp_string .. "None"
             else
                 for index, subval in ipairs(monster[vals[2]]) do
                     tmp_string = tmp_string .. subval
