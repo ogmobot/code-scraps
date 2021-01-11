@@ -26,7 +26,7 @@ parse_level = function(text)
     result = {
         ["mlevel"]              = numbers[1], -- hit dice (0 = 1/2 HD)
         ["mmove"]               = numbers[2], -- arbitrary speed units, where 12 = ordinary human
-        ["armour class"]        = numbers[3], -- before armour
+        ["ac"]                  = numbers[3], -- before armour
         ["magic resistance"]    = numbers[4], -- before armour
         ["alignment"]           = numbers[5],
     }
@@ -67,7 +67,11 @@ parse_attacks = function(text)
     local index = 1
     local attacks = {}
     local ATTK = function (at, ad, n, d)
-        return attack_types[at] .. " " .. n .. "d" .. d .. " (" .. damage_types[ad] .. ")"
+        if n == "0" then
+            return attack_types[at] .. " (" .. damage_types[ad] .. ")"
+        else
+            return attack_types[at] .. " " .. n .. "d" .. d .. " (" .. damage_types[ad] .. ")"
+        end
     end
     local regex = "ATTK%(([^,]*),%s*([^,]*),%s*([^,]*),%s*([^%)]*)%)"
     while true do
@@ -84,7 +88,33 @@ parse_attacks = function(text)
 end
 
 parse_size = function(text)
-    return {}
+    -- SIZ(wt, nut, snd, siz)
+    local start, finish = text:find("SIZ%(")
+    local index = finish + 1
+    result = {}
+    start, finish, result["weight"] = text:find("([%a%d_]+)", index)
+    if result["weight"] == "WT_ELF" then result["weight"] = 800 end
+    if result["weight"] == "WT_DRAGON" then result["weight"] = 4500 end
+    index = finish + 1
+    start, finish, result["nutritional value"] = text:find("([%a%d_]+)", index)
+    index = finish + 1
+    start, finish, result["sound"] = text:find("([%a%d_]+)", index)
+    index = finish + 1
+    start, finish, result["sz"] = text:find("([%a%d_]+)", index)
+    if result["sz"] == "MZ_TINY" then
+        result["size"] = "tiny"
+    elseif result["sz"] == "MZ_SMALL" then
+        result["size"] = "small"
+    elseif result["sz"] == "MZ_MEDIUM" or result["sz"] == "MZ_HUMAN" then
+        result["size"] = "medium"
+    elseif result["sz"] == "MZ_LARGE" then
+        result["size"] = "large"
+    elseif result["sz"] == "MZ_HUGE" then
+        result["size"] = "huge"
+    elseif result["sz"] == "MZ_GIGANTIC" then
+        result["size"] = "gigantic"
+    end
+    return result
 end
 
 merge_flags = function(text)
@@ -93,12 +123,12 @@ merge_flags = function(text)
         MR_DISINT = "disintegration resistance",MR_ELEC = "shock resistance",           MR_POISON = "poison resistance",
         MR_ACID = "acid resistance",            MR_STONE = "petrification resistance",
 
-        M1_FLY          = "can fly or float",               M1_SWIM         = "can traverse water",                 M1_AMORPHOUS    = "can flow under doors",
-        M1_WALLWALK     = "can phase thru rock",            M1_CLING        = "can cling to ceiling",               M1_TUNNEL       = "can tunnel thru rock",
-        M1_NEEDPICK     = "needs pick to tunnel",           M1_CONCEAL      = "hides under objects",                M1_HIDE         = "mimics, blends in with ceiling",
+        M1_FLY          = "can fly or float",               M1_SWIM         = "can swim",                           M1_AMORPHOUS    = "amorphous",
+        M1_WALLWALK     = "can phase through rock",         M1_CLING        = "can cling to ceiling",               M1_TUNNEL       = "can tunnel through rock",
+        M1_NEEDPICK     = "digs tunnels with a pick",       M1_CONCEAL      = "hides under objects",                M1_HIDE         = "mimics, blends in with ceiling",
         M1_AMPHIBIOUS   = "can survive underwater",         M1_BREATHLESS   = "doesn't need to breathe",            M1_NOTAKE       = "cannot pick up objects",
         M1_NOEYES       = "no eyes to gaze into or blind",  M1_NOHANDS      = "no hands to handle things",          M1_NOLIMBS      = "no arms/legs to kick/wear on",
-        M1_NOHEAD       = "no head to behead",              M1_MINDLESS     = "has no mind--golem, zombie, mold",   M1_HUMANOID     = "has humanoid head/arms/torso",
+        M1_NOHEAD       = "no head to behead",              M1_MINDLESS     = "mindless",                           M1_HUMANOID     = "has humanoid body",
         M1_ANIMAL       = "has animal body",                M1_SLITHY       = "has serpent body",                   M1_UNSOLID      = "has no solid or liquid body",
         M1_THICK_HIDE   = "has thick hide or scales",       M1_OVIPAROUS    = "can lay eggs",                       M1_REGEN        = "regenerates hit points",
         M1_SEE_INVIS    = "can see invisible creatures",    M1_TPORT        = "can teleport",                       M1_TPORT_CNTRL  = "controls where it teleports to",
@@ -142,15 +172,15 @@ determine_hit_dice = function(monster)
     local hd = monster["mlevel"] or 0
     local hd_string = ""
     if monster["symbol"] == "S_GOLEM" then
-        if monster["name"] == "paper golem" or monster_name == "straw golem" then
+        if monster["name"] == "paper golem" or monster["name"] == "straw golem" then
             hd_string = "20"
         elseif monster["name"] == "rope golem" then
             hd_string = "30"
-        elseif monster["name"] == "flesh golem" or monster_name == "gold golem" or monster_name == "leather golem" then
+        elseif monster["name"] == "flesh golem" or monster["name"] == "gold golem" or monster["name"] == "leather golem" then
             hd_string = "40"
-        elseif monster["name"] == "clay golem" or monster_name == "wood golem" then
+        elseif monster["name"] == "clay golem" or monster["name"] == "wood golem" then
             hd_string = "50"
-        elseif monster["name"] == "glass golem" or monster_name == "stone golem" then
+        elseif monster["name"] == "glass golem" or monster["name"] == "stone golem" then
             hd_string = "60"
         elseif monster["name"] == "iron golem" then
             hd_string = "80"
@@ -266,7 +296,8 @@ determine_appearance = function(monster)
         HI_DOMESTIC = "domestic",
         HI_LORD = "noble",
     }
-    monster["appearance"] = (colours[monster["colour"]] or "[colour]")
+    monster["appearance"] = monster["size"] or "[size]"
+    monster["appearance"] = monster["appearance"] .. " " .. (colours[monster["colour"]] or "[colour]")
     monster["appearance"] = monster["appearance"] .. " " .. (symbols[monster["symbol"]] or "[symbol]")
 end
 
@@ -294,6 +325,14 @@ determine_speed = function(monster)
         monster["speed"] = "extremely slow"
     end
     monster["speed"] = monster["speed"] .. " (" .. mmove .. ")"
+end
+
+determine_armour_class = function(monster)
+    -- Use OSE convention of
+    --   traditional AC [ascending AC]
+    -- where traditional AC starts at 9 and decreases,
+    -- and ascending AC starts at 10 and increases
+    monster["armour class"] = monster["ac"] .. " [" .. (19 - monster["ac"]) .. "]"
 end
 
 parse_monster = function(text)
@@ -400,8 +439,9 @@ parse_monster = function(text)
     determine_hit_dice(monster)
     determine_appearance(monster)
     determine_speed(monster)
+    determine_armour_class(monster)
  
----[[
+--[[
     for k, v in pairs(monster) do
         if k == "attacks" then
             for ka, va in pairs(monster[k]) do
@@ -421,15 +461,75 @@ parse_monster = function(text)
     return monster
 end
 
+first_upper = function(text)
+    text = tostring(text)
+    return text:sub(1, 1):upper() .. text:sub(2)
+end
+
+format_as_tex = function(monster)
+    local result = ""
+    result = result .. "\\monstername{" .. monster["name"] .. "}\n\n"
+    result = result .. "\\textit{" .. monster["appearance"] .. "}\n\n"
+    local output_lines = {
+        {"Armour Class", "armour class"},
+        {"Hit Dice", "hit dice"},
+        {"Speed", "speed"},
+        {"Attacks", "attacks"},
+        {"Alignment", "alignment"},
+        {"Resistances", "resistances"},
+        {"Attributes", "m1 flags"},
+    }
+    for _, vals in ipairs(output_lines) do
+        result = result .. "\\monsterstat{" .. vals[1] .. ":} \\monsterval{"
+        if type(monster[vals[2]]) == "table" then
+            if #monster[vals[2]] == 0 then
+                result = result .. "none"
+            else
+                for index, subval in ipairs(monster[vals[2]]) do
+                    result = result .. subval
+                    if index ~= #monster[vals[2]] then
+                        result = result .. ", "
+                    end
+                end
+            end
+        else
+            result = result .. first_upper(monster[vals[2]])
+        end
+        result = result .. "}\n\n"
+    end
+    return result
+end
+
+parse_all_text = function(big_text)
+    local result = {}
+    for mon_text in big_text:gmatch("(MON3?%b())") do
+        result[#result+1] = parse_monster(mon_text)
+    end
+    return result
+end
+
+mon_list_to_tex = function(mon_list)
+    local result = ""
+    for _, monster in ipairs(mon_list) do
+        result = result .. format_as_tex(monster)
+    end
+    return result
+end
+
+file_to_tex = function(filename)
+    local file_handle = io.open(filename)
+    return mon_list_to_tex(parse_all_text(file_handle:read("*a")))
+end
+
 run_test = function()
-    parse_monster([[MON("fire ant", S_ANT, LVL(3, 18, 3, 10, 0), (G_GENO | G_SGROUP | 1),
+    a = parse_monster([[MON("fire ant", S_ANT, LVL(3, 18, 3, 10, 0), (G_GENO | G_SGROUP | 1),
         A(ATTK(AT_BITE, AD_PHYS, 2, 4), ATTK(AT_BITE, AD_FIRE, 2, 4), NO_ATTK,
           NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(30, 10, MS_SILENT, MZ_TINY), MR_FIRE, MR_FIRE,
         M1_ANIMAL | M1_NOHANDS | M1_OVIPAROUS | M1_CARNIVORE, M2_HOSTILE,
         M3_INFRAVISIBLE, 6, CLR_RED)]])
     print("===")
-    parse_monster([[MON("Demogorgon", S_DEMON, LVL(106, 15, -8, 95, -20),
+    b = parse_monster([[MON("Demogorgon", S_DEMON, LVL(106, 15, -8, 95, -20),
         (G_HELL | G_NOCORPSE | G_NOGEN | G_UNIQ),
         A(ATTK(AT_MAGC, AD_SPEL, 8, 6), ATTK(AT_STNG, AD_DRLI, 1, 4),
           ATTK(AT_CLAW, AD_DISE, 1, 6), ATTK(AT_CLAW, AD_DISE, 1, 6), NO_ATTK,
@@ -440,7 +540,7 @@ run_test = function()
             | M2_PRINCE | M2_MALE,
         M3_WANTSAMUL | M3_INFRAVISIBLE | M3_INFRAVISION, 57, HI_LORD)]])
     print("===")
-    parse_monster([[MON("King Arthur", S_HUMAN, LVL(20, 12, 0, 40, 20), (G_NOGEN | G_UNIQ),
+    c = parse_monster([[MON("King Arthur", S_HUMAN, LVL(20, 12, 0, 40, 20), (G_NOGEN | G_UNIQ),
         A(ATTK(AT_WEAP, AD_PHYS, 1, 6), ATTK(AT_WEAP, AD_PHYS, 1, 6), NO_ATTK,
           NO_ATTK, NO_ATTK, NO_ATTK),
         SIZ(WT_HUMAN, 400, MS_LEADER, MZ_HUMAN), 0, 0,
@@ -448,4 +548,11 @@ run_test = function()
         M2_NOPOLY | M2_HUMAN | M2_PNAME | M2_PEACEFUL | M2_STRONG | M2_MALE
             | M2_COLLECT | M2_MAGIC,
         M3_CLOSE | M3_INFRAVISIBLE, 23, HI_LORD)]])
+end
+
+filename = arg[1]
+if filename then
+    print(file_to_tex(filename))
+else
+    print("Need filename (" .. arg[0] .. " " .. "<filename>)")
 end
