@@ -69,6 +69,8 @@ parse_attacks = function(text)
     local ATTK = function (at, ad, n, d)
         if n == "0" then
             return attack_types[at] .. " (" .. damage_types[ad] .. ")"
+        elseif d == "1" then
+            return attack_types[at] .. " " .. n .. " (" .. damage_types[ad] .. ")"
         else
             return attack_types[at] .. " " .. n .. "d" .. d .. " (" .. damage_types[ad] .. ")"
         end
@@ -156,7 +158,7 @@ merge_flags = function(text)
     local index = 1
     local flags = {}
     while index < #text do
-        found, index, flag = text:find("(M._%a*)", index)
+        found, index, flag = text:find("(M._[%a_]*)", index)
         if found then
             index = index + 1
             flags[#flags + 1] = flag_text[flag]
@@ -173,19 +175,19 @@ determine_hit_dice = function(monster)
     local hd_string = ""
     if monster["symbol"] == "S_GOLEM" then
         if monster["name"] == "paper golem" or monster["name"] == "straw golem" then
-            hd_string = "20"
+            hd_string = "20 HP (5 HD)"
         elseif monster["name"] == "rope golem" then
-            hd_string = "30"
+            hd_string = "30 HP (7 HD)"
         elseif monster["name"] == "flesh golem" or monster["name"] == "gold golem" or monster["name"] == "leather golem" then
-            hd_string = "40"
+            hd_string = "40 HP (10 HD)"
         elseif monster["name"] == "clay golem" or monster["name"] == "wood golem" then
-            hd_string = "50"
+            hd_string = "50 HP (12 HD)"
         elseif monster["name"] == "glass golem" or monster["name"] == "stone golem" then
-            hd_string = "60"
+            hd_string = "60 HP (15 HD)"
         elseif monster["name"] == "iron golem" then
-            hd_string = "80"
+            hd_string = "80 HP (20 HD)"
         else
-            hd_string = "20?"
+            hd_string = "20 HP?"
         end
     elseif monster["name"] == "Death" or monster["name"] == "Famine" or monster["name"] == "Pestilence" then
         hd_string = "10d8"
@@ -244,7 +246,7 @@ determine_appearance = function(monster)
         S_MUMMY = "mummy",
         S_NAGA = "naga",
         S_OGRE = "ogre",
-        S_PUDDING = "pudding",
+        S_PUDDING = "ooze",
         S_QUANTMECH = "scientist",
         S_RUSTMONST = "rust monster",
         S_SNAKE = "snake",
@@ -268,14 +270,14 @@ determine_appearance = function(monster)
         CLR_GREEN = "green",
         CLR_BROWN = "brown",
         CLR_BLUE = "blue",
-        CLR_MAGENTA = "magenta",
+        CLR_MAGENTA = "purple",
         CLR_CYAN = "cyan",
         CLR_GRAY = "grey",
         CLR_ORANGE = "orange",
         CLR_BRIGHT_GREEN = "bright green",
         CLR_YELLOW = "yellow",
         CLR_BRIGHT_BLUE = "bright blue",
-        CLR_BRIGHT_MAGENTA = "bright magenta",
+        CLR_BRIGHT_MAGENTA = "magenta",
         CLR_BRIGHT_CYAN = "bright cyan",
         CLR_WHITE = "white",
 
@@ -499,7 +501,7 @@ format_as_tex = function(monster)
         end
         result = result .. "}\n\n"
     end
-    return result
+    return result:gsub("-%d", "-%1") -- replace e.g. (-3) with (--3)
 end
 
 parse_all_text = function(big_text)
