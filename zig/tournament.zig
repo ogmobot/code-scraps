@@ -4,7 +4,7 @@ const print = std.debug.print;
 
 const Node = struct {
     winner: enum { PLAYER_1, PLAYER_2, UNKNOWN },
-    node_type: enum { LEAF, MAIN_BRACKET, ELIM_BRACKET, XTRA_BRACKET },
+    node_type: enum { MAIN_BRACKET, MAIN_LEAF, ELIM_BRACKET, ELIM_LEAF, ELIM_EXTRA },
     player_1: ?*Player,
     player_2: ?*Player,
     left_node: ?*Node,
@@ -27,6 +27,14 @@ const Return_Code = enum {
 fn make_tree(depth: u32) *Node {
     // TODO: this whole function. Create a big stack or something to allocate memory with.
     // allocator should be passed as an argument.
+    switch (depth) {
+        1 => {
+            // 2 contestants
+        },
+        else => {
+            return null;
+        },
+    }
     var result = Node{
         .winner = .UNKNOWN,
         .node_type = .MAIN_BRACKET,
@@ -61,26 +69,17 @@ fn determine_winner(root: *Node) Return_Code {
         if (left_ret == .DEFER or right_ret == .DEFER) {
             return .DEFER;
         }
-        if (root.*.node_type == .MAIN_BRACKET or root.*.node_type == .ELIM_BRACKET) {
-            // usually, player_1 is winner of left bracket
-            root.*.player_1 = if (left_child.*.winner == .PLAYER_1) {
-                left_child.*.player_1;
-            } else {
-                left_child.*.player_2;
-            };
+
+        // Usually, player_1 is winner of left child.
+        // For ELIM_EXTRA/ELIM_LEAF, player_1 is the player leaving main bracket
+        // (left child points to main bracket.)
+        root.*.player_1 = if ((left_child.*.winner == .PLAYER_1) and (root.*.node_type != .ELIM_BRACKET and root.*.node_type != .ELIM_LEAF)) {
+            left_child.*.player_1;
         } else {
-            // .XTRA_BRACKET type
-            // player_1 is the player leaving main bracket and entering loser's bracket.
-            // (left child points to main bracket.)
-            // Hence, our player_1 should be the loser of the left child.
-            root.*.player_1 = if (left_child.*.winner == .PLAYER_1) {
-                left_child.*.player_2;
-            } else {
-                left_child.*.player_1;
-            };
-        }
-        // player_2 is always winner of right child
-        root.*.player_2 = if (right_child.*.winner == .PLAYER_1) {
+            left_child.*.player_2;
+        };
+        // Usually, player_2 is winner of right child.
+        root.*.player_2 = if (right_child.*.winner == .PLAYER_1 and root.*.node_type != .ELIM_LEAF) {
             right_child.*.player_1;
         } else {
             right_child.*.player_2;
@@ -97,6 +96,5 @@ fn determine_winner(root: *Node) Return_Code {
 }
 
 pub fn main() void {
-    _ = make_tree(0);
-    print("Hello, world!\n", .{});
+    var grand_final = print("Hello, world!\n", .{});
 }
