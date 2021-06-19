@@ -21,14 +21,17 @@ const print = std.debug.print;
 // L2  * *     * *  [4-7] depth=3
 // L3 ** **   ** ** [8-15] depth=4
 
+// Defining this as u64 means we can avoid @as(u64, 1) later
+const ONE: u64 = 1;
+
 const bracket_type = enum {
-    WINNER, LOSER_MINOR, LOSER_MAJOR
+    WINNER, LOSER_MINOR, LOSER_MAJOR, GRAND_FINAL
 };
 
 const Tournament = struct {
     allocator: *std.mem.Allocator,
     depth: u6,
-    b_W: []Node, // Winner's bracket
+    b_W: []Node, // Winner's bracket; b_W[0] is grand final
     b_Lmin: []Node, // Loser's bracket (minor)
     b_Lmaj: []Node, // Loser's bracket (major)
     const Self = @This();
@@ -41,9 +44,9 @@ const Tournament = struct {
         var result = Self{
             .allocator = allocator,
             .depth = depth,
-            .b_W = allocator.alloc(Node, @as(u64, 1) << depth) catch &[_]Node{},
-            .b_Lmin = allocator.alloc(Node, @as(u64, 1) << (depth - 1)) catch &[_]Node{},
-            .b_Lmaj = allocator.alloc(Node, @as(u64, 1) << depth) catch &[_]Node{},
+            .b_W = allocator.alloc(Node, ONE << depth) catch &[_]Node{},
+            .b_Lmin = allocator.alloc(Node, ONE << (depth - 1)) catch &[_]Node{},
+            .b_Lmaj = allocator.alloc(Node, ONE << depth) catch &[_]Node{},
         };
         return result;
     }
@@ -53,25 +56,27 @@ const Tournament = struct {
         self.allocator.free(self.b_Lmaj);
         return;
     }
-    fn populate(self: *Self, players: []*Player) void {
+    fn populate(self: *Self, players: []*const Player) void {
         // Populates the leaves of winner's bracket with the given players,
-        // and populates the leaves of Lmaj.player_2 with byes.
-        const layer_size = @as(u64, 1) << (self.depth - 1);
-        // layer_size is also the starting index
-        var index = layer_size;
-        // Make Winner's bracket null
-        while (index < layer_size * 2) {
-            self.b_W[index].player_1 = null;
-            self.b_W[index].player_2 = null;
+        // and populates all other nodes with byes.
+        var index: usize = 0;
+        while (index < (ONE << self.depth)) {
+            self.b_W[index] = .{};
             index += 1;
         }
-        // Make Loser's bracket (major) null
-        index = layer_size;
-        while (index < layer_size * 2) {
-            self.b_Lmaj[index].player_2 = null;
+        index = 0;
+        while (index < (ONE << self.depth)) {
+            self.b_Lmaj[index] = .{};
+            index += 1;
+        }
+        index = 0;
+        while (index < (ONE << (self.depth - 1))) {
+            self.b_Lmin[index] = .{};
             index += 1;
         }
         // Add players
+        const layer_size = ONE << (self.depth - 1);
+        // layer_size is also the starting index
         // TODO Chris' algorithm
         for (players) |player, i| {
             if (i % 2 == 0) {
@@ -91,97 +96,151 @@ const Tournament = struct {
             .WINNER => self.b_W,
             .LOSER_MINOR => self.b_Lmin,
             .LOSER_MAJOR => self.b_Lmaj,
+            .GRAND_FINAL => undefined,
         };
-        var match = &bracket[(@as(u64, 1) << level) + index];
-        var winning_player: ?*Player = null;
-        var losing_player: ?*Player = null;
+        var match: *Node = undefined;
+        if (which_bracket == .GRAND_FINAL) {
+            match = &self.b_W[0];
+        } else {
+            match = &bracket[(ONE << level) + index];
+        }
+        var winning_player: ?*const Player = undefined;
+        var losing_player: ?*const Player = undefined;
         if (first_player_wins(match.*.player_1, match.*.player_2)) {
             match.*.winner = .PLAYER_1;
             winning_player = match.*.player_1;
             losing_player = match.*.player_2;
-            print("Player 1 wins.\n", .{});
+            //print("Player 1 wins.\n", .{});
         } else {
             match.*.winner = .PLAYER_2;
             winning_player = match.*.player_2;
             losing_player = match.*.player_1;
-            print("Player 2 wins.\n", .{});
+            //print("Player 2 wins.\n", .{});
         }
         // Populate next brackets
         switch (which_bracket) {
             .WINNER => {
                 // winner progresses to next level of winner's bracket
                 // loser goes to same level of loser's bracket (major)
-                var next_match = self.b_W[(@as(u64, 1) << (level - 1)) + (index >> 1)];
-                if (index % 2 == 0) {
-                    next_match.player_1 = winning_player;
+                var next_match: *Node = undefined;
+                if (level == 0) {
+                    next_match = &self.b_W[0];
+                    next_match.*.player_1 = winning_player;
                 } else {
-                    next_match.player_2 = winning_player;
+                    next_match = &self.b_W[(ONE << (level - 1)) + (index >> 1)];
+                    if (index % 2 == 0) {
+                        next_match.*.player_1 = winning_player;
+                    } else {
+                        next_match.*.player_2 = winning_player;
+                    }
                 }
-                self.b_Lmaj[(@as(u64, 1) << level) + index].player_1 = losing_player;
+                self.b_Lmaj[(ONE << level) + index].player_1 = losing_player;
             },
             .LOSER_MINOR => {
                 // winner progresses to same level of loser's bracket (major)
                 // loser drops
-                self.b_Lmaj[(@as(u64, 1) << level) + index].player_2 = winning_player;
+                self.b_Lmaj[(ONE << level) + index].player_2 = winning_player;
             },
             .LOSER_MAJOR => {
                 // winner progresses to next level of loser's bracket (minor)
                 // loser drops
-                var next_match = self.b_Lmaj[(@as(u64, 1) << level) + index];
-                if (index % 2 == 0) {
-                    next_match.player_1 = winning_player;
+                var next_match: *Node = undefined;
+                if (level == 0) {
+                    next_match = &self.b_W[0];
+                    next_match.*.player_2 = winning_player;
                 } else {
-                    next_match.player_2 = winning_player;
+                    next_match = &self.b_Lmin[(ONE << (level - 1)) + (index >> 1)];
+                    if (index % 2 == 0) {
+                        next_match.*.player_1 = winning_player;
+                    } else {
+                        next_match.*.player_2 = winning_player;
+                    }
                 }
             },
+            .GRAND_FINAL => {},
         }
+    }
+    fn run_all_matches(self: *Self) void {
+        var level = self.depth - 1;
+        var index: usize = undefined;
+        var layer_size: usize = undefined;
+        while (true) {
+            layer_size = ONE << level;
+            if (level < self.depth - 1) {
+                // Run Loser's (Minor)
+                index = 0;
+                while (index < layer_size) {
+                    self.run_match(.LOSER_MINOR, level, index);
+                    index += 1;
+                }
+            }
+            // Run Winner's
+            index = 0;
+            while (index < layer_size) {
+                self.run_match(.WINNER, level, index);
+                index += 1;
+            }
+            // Run Loser's (Major)
+            index = 0;
+            while (index < layer_size) {
+                self.run_match(.LOSER_MAJOR, level, index);
+                index += 1;
+            }
+            if (level == 0) {
+                break;
+            } else {
+                level -= 1;
+            }
+        }
+        self.run_match(.GRAND_FINAL, 0, 0);
     }
     fn print_tree(self: *Self) void {
         var level: u6 = undefined;
         print("Winner's bracket\n", .{});
         level = 0;
         while (level < self.depth) {
-            for (self.b_W[(@as(u64, 1) << level)..(@as(u64, 1) << (level + 1))]) |match, i| {
+            for (self.b_W[(ONE << level)..(ONE << (level + 1))]) |match, i| {
                 print_match(match);
             }
             print("\n", .{});
             level += 1;
         }
-        print("Loser's bracket (major)\n", .{});
+        print("Loser's bracket\n", .{});
         level = 0;
         while (level < self.depth) {
-            for (self.b_Lmaj[(@as(u64, 1) << level)..(@as(u64, 1) << (level + 1))]) |match, i| {
+            for (self.b_Lmaj[(ONE << level)..(ONE << (level + 1))]) |match, i| {
                 print_match(match);
             }
             print("\n", .{});
-            level += 1;
-        }
-        print("Loser's bracket (minor)\n", .{});
-        level = 0;
-        while (level < self.depth - 1) {
-            for (self.b_Lmin[(@as(u64, 1) << level)..(@as(u64, 1) << (level + 1))]) |match, i| {
-                print_match(match);
+            if (level < self.depth - 1) {
+                for (self.b_Lmin[(ONE << level)..(ONE << (level + 1))]) |match, i| {
+                    print_match(match);
+                }
+                print("\n", .{});
             }
-            print("\n", .{});
             level += 1;
         }
+        print("Grand finals\n", .{});
+        print_match(self.b_W[0]);
+        print("\n", .{});
     }
 };
 
 const Node = struct {
     // If player_x is null, this is a bye.
     winner: enum { PLAYER_1, PLAYER_2, UNKNOWN } = .UNKNOWN,
-    player_1: ?*Player = null,
-    player_2: ?*Player = null,
+    player_1: ?*const Player = null,
+    player_2: ?*const Player = null,
     const Self = @This();
 };
 
 const Player = struct {
+    name: []const u8,
     id: u32,
     elo: i32,
 };
 
-fn first_player_wins(p1: ?*Player, p2: ?*Player) bool {
+fn first_player_wins(p1: ?*const Player, p2: ?*const Player) bool {
     if (p2 == null)
         return true;
     if (p1 == null)
@@ -191,30 +250,36 @@ fn first_player_wins(p1: ?*Player, p2: ?*Player) bool {
 }
 
 fn print_match(match: Node) void {
-    print("Node({} ", .{match.winner});
-    //if (match.player_1) |p1| {
-    //print("{}", .{p1});
-    //} else {
-    //print("null ", .{});
-    //}
-    //if (match.player_2) |p2| {
-    //print("{}", .{p2});
-    //} else {
-    //print("null ", .{});
-    //}
-    print(")", .{});
+    // Don't call this on uninitialised node!
+    print("(", .{});
+    if (match.player_1) |p1| {
+        print("{}", .{p1.name});
+    } else {
+        print("-bye-", .{});
+    }
+    switch (match.winner) {
+        .PLAYER_1 => print("* v  ", .{}),
+        .PLAYER_2 => print("  v *", .{}),
+        else => print("  v  ", .{}),
+    }
+    if (match.player_2) |p2| {
+        print("{}", .{p2.name});
+    } else {
+        print("-bye-", .{});
+    }
+    print(") ", .{});
 }
 
 pub fn main() void {
     const allocator = std.heap.page_allocator;
-    var tmp = Tournament.init(allocator, 3);
+    var tmp = Tournament.init(allocator, 2);
     defer tmp.deinit();
-    var alice = Player{ .id = 0, .elo = 0 };
-    var bob = Player{ .id = 1, .elo = 1 };
-    var pointers = [_]*Player{ &alice, &bob };
+    const alice = Player{ .id = 0, .elo = 0, .name = "Alice" };
+    const bob = Player{ .id = 1, .elo = 1, .name = "Bob" };
+    const charlie = Player{ .id = 2, .elo = 3, .name = "Charlie" };
+    const dave = Player{ .id = 3, .elo = 2, .name = "Dave" };
+    var pointers = [_]*const Player{ &alice, &bob, &charlie, &dave };
     tmp.populate(pointers[0..]);
+    tmp.run_all_matches();
     tmp.print_tree();
-    tmp.run_match(.WINNER, 2, 0);
-    tmp.print_tree();
-    var grand_final = print("Hello, world!\n", .{});
 }
