@@ -1,0 +1,6 @@
+[
+    {"PlayerID": 0, "PlayerName":"Alice", "Elo": 0},
+    {"PlayerID": 1, "PlayerName":"Bob", "Elo": 1},
+    {"PlayerID": 2, "PlayerName":"Charlie", "Elo": 3},
+    {"PlayerID": 3, "PlayerName":"Dave", "Elo": 2}
+]
