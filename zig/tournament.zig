@@ -304,22 +304,26 @@ fn print_match(match: Node) void {
 
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
-    var tmp = Tournament.init(allocator, 2);
-    defer tmp.deinit();
     var players = std.ArrayList(Player).init(allocator);
     defer players.deinit();
     var parser = std.json.Parser.init(allocator, false); // don't bother copying strings
     defer parser.deinit();
     var tree: std.json.ValueTree = undefined;
     tree = try parser.parse(test_input);
-    // Assume test_input provides players in an array, i.e.
+    // Assume test_input provides players as an Array of Objects, i.e.
     // [
     //   {"PlayerID": ... },
     //   ...
     // ]
-    for (tree.root.Array.items) |player_json| {
-        try players.append(player_from_ausmash_json(player_json));
+    for (tree.root.Array.items) |player_object| {
+        try players.append(player_from_ausmash_json(player_object));
     }
+    var tournament_depth: u6 = 1;
+    while ((ONE << tournament_depth) < players.items.len) {
+        tournament_depth += 1;
+    }
+    var tmp = Tournament.init(allocator, tournament_depth);
+    defer tmp.deinit();
     tmp.populate(&players.items);
     tmp.run_all_matches();
     tmp.print_tree();
