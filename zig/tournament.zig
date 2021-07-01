@@ -1,8 +1,11 @@
 const std = @import("std");
 const print = std.debug.print;
 const json = std.json;
+const rand = std.rand;
 
 const test_input = @embedFile("test.json");
+
+var prng = new_prng();
 
 // The goal here is to implement a memory-efficient tournament structure
 // and run simulated tournaments.
@@ -99,7 +102,7 @@ const Tournament = struct {
         // Runs the match of the given bracket
         // E.g. t.run_match(.WINNER, 2, 0)
         // runs the first match of the winner's semifinals
-        print("Running match {}, {}, {}.\n", .{ which_bracket, level, index });
+        //print("Running match {}, {}, {}.\n", .{ which_bracket, level, index });
         const bracket = switch (which_bracket) {
             .WINNER => self.b_W,
             .LOSER_MINOR => self.b_Lmin,
@@ -114,6 +117,9 @@ const Tournament = struct {
         }
         var winning_player: ?*const Player = undefined;
         var losing_player: ?*const Player = undefined;
+        if (match.*.player_1 != null and match.*.player_2 != null) {
+            print("{} {}\n", .{ match.*.player_1.?.*.name, match.*.player_2.?.*.name });
+        }
         if (first_player_wins(match.*.player_1, match.*.player_2)) {
             match.*.winner = .PLAYER_1;
             winning_player = match.*.player_1;
@@ -277,8 +283,11 @@ fn first_player_wins(p1: ?*const Player, p2: ?*const Player) bool {
         return true;
     if (p1 == null)
         return false;
-    // TODO: the elo thing
-    return p1.?.*.elo >= p2.?.*.elo;
+    // do the elo thing
+    const qa: f64 = @exp2(@log2(@as(f64, 10.0)) * @intToFloat(f64, p1.?.*.elo) / 400);
+    const qb: f64 = @exp2(@log2(@as(f64, 10.0)) * @intToFloat(f64, p2.?.*.elo) / 400);
+    const win_percentage = qa / (qa + qb);
+    return win_percentage > prng.random.float(f64);
 }
 
 fn print_match(match: Node) void {
@@ -300,6 +309,15 @@ fn print_match(match: Node) void {
         print("-bye-", .{});
     }
     print(") ", .{});
+}
+
+fn new_prng() rand.DefaultPrng {
+    var buf: [8]u8 = undefined;
+    // TODO figure out why this won't work...
+    //std.os.getrandom(buf[0..]) catch unreachable;
+    buf = .{ 1, 2, 3, 4, 5, 6, 7, 8 };
+    const seed = std.mem.readIntLittle(u64, buf[0..8]);
+    return rand.DefaultPrng.init(seed);
 }
 
 pub fn main() !void {
@@ -326,5 +344,5 @@ pub fn main() !void {
     defer tmp.deinit();
     tmp.populate(&players.items);
     tmp.run_all_matches();
-    tmp.print_tree();
+    //tmp.print_tree();
 }
