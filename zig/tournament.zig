@@ -24,6 +24,10 @@ const print = std.debug.print;
 // Defining this as u64 means we can avoid @as(u64, 1) later
 const ONE: u64 = 1;
 
+fn bracket_index(row: u6, col: u64) u64 {
+    return (ONE << row) + col;
+}
+
 const bracket_type = enum {
     WINNER, LOSER_MINOR, LOSER_MAJOR, GRAND_FINAL
 };
@@ -60,29 +64,27 @@ const Tournament = struct {
         // Populates the leaves of winner's bracket with the given players,
         // and populates all other nodes with byes.
         var index: usize = 0;
-        while (index < (ONE << self.depth)) {
+        while (index < bracket_index(self.depth, 0)) {
             self.b_W[index] = .{};
             index += 1;
         }
         index = 0;
-        while (index < (ONE << self.depth)) {
+        while (index < bracket_index(self.depth, 0)) {
             self.b_Lmaj[index] = .{};
             index += 1;
         }
         index = 0;
-        while (index < (ONE << (self.depth - 1))) {
+        while (index < bracket_index(self.depth - 1, 0)) {
             self.b_Lmin[index] = .{};
             index += 1;
         }
         // Add players
-        const layer_size = ONE << (self.depth - 1);
-        // layer_size is also the starting index
         // TODO Chris' algorithm
         for (players) |player, i| {
             if (i % 2 == 0) {
-                self.b_W[layer_size + (i >> 1)].player_1 = player;
+                self.b_W[bracket_index(self.depth - 1, i / 2)].player_1 = player;
             } else {
-                self.b_W[layer_size + (i >> 1)].player_2 = player;
+                self.b_W[bracket_index(self.depth - 1, i / 2)].player_2 = player;
             }
         }
         return;
@@ -102,7 +104,7 @@ const Tournament = struct {
         if (which_bracket == .GRAND_FINAL) {
             match = &self.b_W[0];
         } else {
-            match = &bracket[(ONE << level) + index];
+            match = &bracket[bracket_index(level, index)];
         }
         var winning_player: ?*const Player = undefined;
         var losing_player: ?*const Player = undefined;
@@ -127,19 +129,19 @@ const Tournament = struct {
                     next_match = &self.b_W[0];
                     next_match.*.player_1 = winning_player;
                 } else {
-                    next_match = &self.b_W[(ONE << (level - 1)) + (index >> 1)];
+                    next_match = &self.b_W[bracket_index(level - 1, index / 2)];
                     if (index % 2 == 0) {
                         next_match.*.player_1 = winning_player;
                     } else {
                         next_match.*.player_2 = winning_player;
                     }
                 }
-                self.b_Lmaj[(ONE << level) + index].player_1 = losing_player;
+                self.b_Lmaj[bracket_index(level, index)].player_1 = losing_player;
             },
             .LOSER_MINOR => {
                 // winner progresses to same level of loser's bracket (major)
                 // loser drops
-                self.b_Lmaj[(ONE << level) + index].player_2 = winning_player;
+                self.b_Lmaj[bracket_index(level, index)].player_2 = winning_player;
             },
             .LOSER_MAJOR => {
                 // winner progresses to next level of loser's bracket (minor)
@@ -149,7 +151,7 @@ const Tournament = struct {
                     next_match = &self.b_W[0];
                     next_match.*.player_2 = winning_player;
                 } else {
-                    next_match = &self.b_Lmin[(ONE << (level - 1)) + (index >> 1)];
+                    next_match = &self.b_Lmin[bracket_index(level - 1, index / 2)];
                     if (index % 2 == 0) {
                         next_match.*.player_1 = winning_player;
                     } else {
@@ -199,7 +201,7 @@ const Tournament = struct {
         print("Winner's bracket\n", .{});
         level = 0;
         while (level < self.depth) {
-            for (self.b_W[(ONE << level)..(ONE << (level + 1))]) |match, i| {
+            for (self.b_W[bracket_index(level, 0)..bracket_index(level + 1, 0)]) |match, i| {
                 print_match(match);
             }
             print("\n", .{});
@@ -208,12 +210,12 @@ const Tournament = struct {
         print("Loser's bracket\n", .{});
         level = 0;
         while (level < self.depth) {
-            for (self.b_Lmaj[(ONE << level)..(ONE << (level + 1))]) |match, i| {
+            for (self.b_Lmaj[bracket_index(level, 0)..bracket_index(level + 1, 0)]) |match, i| {
                 print_match(match);
             }
             print("\n", .{});
             if (level < self.depth - 1) {
-                for (self.b_Lmin[(ONE << level)..(ONE << (level + 1))]) |match, i| {
+                for (self.b_Lmin[bracket_index(level, 0)..bracket_index(level + 1, 0)]) |match, i| {
                     print_match(match);
                 }
                 print("\n", .{});
