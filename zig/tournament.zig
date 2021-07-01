@@ -1,6 +1,11 @@
 const std = @import("std");
 const print = std.debug.print;
-// The goal here is to implement a memory-efficient tournament structure.
+const json = std.json;
+
+const test_input = @embedFile("test.json");
+
+// The goal here is to implement a memory-efficient tournament structure
+// and run simulated tournaments.
 
 // Build three binary trees:
 // - Winner's bracket [W]
@@ -60,7 +65,7 @@ const Tournament = struct {
         self.allocator.free(self.b_Lmaj);
         return;
     }
-    fn populate(self: *Self, players: []*const Player) void {
+    fn populate(self: *Self, players: *[]const Player) void {
         // Populates the leaves of winner's bracket with the given players,
         // and populates all other nodes with byes.
         var index: usize = 0;
@@ -80,11 +85,12 @@ const Tournament = struct {
         }
         // Add players
         // TODO Chris' algorithm
-        for (players) |player, i| {
+        for (players.*) |player, i| {
+            //print("{}\n", .{player});
             if (i % 2 == 0) {
-                self.b_W[bracket_index(self.depth - 1, i / 2)].player_1 = player;
+                self.b_W[bracket_index(self.depth - 1, i / 2)].player_1 = &(players.*[i]);
             } else {
-                self.b_W[bracket_index(self.depth - 1, i / 2)].player_2 = player;
+                self.b_W[bracket_index(self.depth - 1, i / 2)].player_2 = &(players.*[i]);
             }
         }
         return;
@@ -240,7 +246,33 @@ const Player = struct {
     name: []const u8,
     id: u32,
     elo: i32,
+    const Self = @This();
 };
+
+fn player_from_ausmash_json(tree_root: json.Value) !Player {
+    // assuming Ausmash API
+    var result: Player = .{
+        .name = "",
+        .id = 0,
+        .elo = 0,
+    };
+    // The tree must be an object.
+    if (tree_root == .Object) {
+        const iterator = tree.Object.iterator();
+        while (iterator.next()) |entry| {
+            if (std.mem.eql(u8, entry.key, "PlayerID") and (entry.value == .Integer)) {
+                result.id = @intCast(u32, entry.value.Integer);
+            } else if (std.mem.eql(u8, entry.key, "PlayerName") and (entry.value == .String)) {
+                result.name = entry.value.String;
+            } else if (std.mem.eql(u8, entry.key, "Elo") and (entry.value == .Integer)) {
+                result.elo = @intCast(i32, entry.value.Integer);
+            }
+        }
+        return result;
+    } else {
+        return error.InvalidChar;
+    }
+}
 
 fn first_player_wins(p1: ?*const Player, p2: ?*const Player) bool {
     if (p2 == null)
@@ -272,16 +304,22 @@ fn print_match(match: Node) void {
     print(") ", .{});
 }
 
-pub fn main() void {
+pub fn main() !void {
     const allocator = std.heap.page_allocator;
     var tmp = Tournament.init(allocator, 2);
     defer tmp.deinit();
+    var players = std.ArrayList(Player).init(allocator);
+    defer players.deinit();
     const alice = Player{ .id = 0, .elo = 0, .name = "Alice" };
     const bob = Player{ .id = 1, .elo = 1, .name = "Bob" };
     const charlie = Player{ .id = 2, .elo = 3, .name = "Charlie" };
     const dave = Player{ .id = 3, .elo = 2, .name = "Dave" };
-    var pointers = [_]*const Player{ &alice, &bob, &charlie, &dave };
-    tmp.populate(pointers[0..]);
+    //var pointers = [_]*const Player{ &alice, &bob, &charlie, &dave };
+    try players.append(alice);
+    try players.append(bob);
+    try players.append(charlie);
+    try players.append(dave);
+    tmp.populate(&players.items);
     tmp.run_all_matches();
     tmp.print_tree();
 }
