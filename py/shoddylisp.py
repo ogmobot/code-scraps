@@ -194,6 +194,7 @@ global_env = {
     "->str": (lambda a: str(a)),
     "->int": (lambda a: int(a)),
     "->list": (lambda a: Lisped_list(a)),
+    "tuple": (lambda *args: tuple(args)),
     "length": (lambda a: len(a)),
     "slice": (lambda s, i, j: s[i:j]),
     "True": True,
@@ -205,6 +206,9 @@ global_env = {
     "dict-set": (lambda a, key, val: a.update({key: val})),
     "dict-get": (lambda a, key, default=None: a.get(key, default)),
     "dict-keys": (lambda d: d.keys()),
+    "dict-update": (lambda a, b: {
+        k:v for subdict in [a,b] for k,v in subdict.items()
+    }),
     # set methods
     "set-new": (lambda: set()),
     "set-add": (lambda a, val: a.add(val)),
