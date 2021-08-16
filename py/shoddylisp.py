@@ -317,4 +317,8 @@ eval_string("""
                     delimiter-list
                     0))
             (split-line line delimiter-list (+ test-index 1))))))
+(set! range (lambda rangestart rangeend)
+    (if (< rangestart rangeend)
+        (cons rangestart (range (+ rangestart 1) rangeend))
+        (quote ())))
 )""")
