@@ -1,80 +1,78 @@
 import random
 class Lisped_list:
     def __init__(self, iterable=[]):
-        self._head = []
-        for val in iterable:
-            self.append(val)
+        self._car = None
+        self._cdr = None
+        if iterable:
+            self._car = iterable[0]
+            self._cdr = Lisped_list(iterable[1:])
+    def null(self):
+        return (self._car == None) and (self._cdr == None)
     def car(self):
-        if self._head:
-            return self._head[0]
-        else:
-            return None
+        return self._car
     def cdr(self):
-        result = Lisped_list()
-        if self._head:
-            result._head = self._head[1]
-        return result
+        return self._cdr
     def append(self, val):
-        ptr = self._head
-        while ptr:
-            ptr = ptr[1]
-        ptr.extend([val, []])
+        if self.null():
+            self._car = val
+            self._cdr = Lisped_list()
+        else:
+            self._cdr.append(val)
     def prepend(self, val):
         result = Lisped_list()
-        result._head = [val, self._head]
+        result._car = val
+        result._cdr = self
         return result
     def copy(self):
-        result = Lisped_list()
-        ptr = self._head
-        while ptr:
-            if hasattr(ptr[0], 'copy'):
-                result.append(ptr[0].copy())
+        if self.null():
+            return Lisped_list()
+        else:
+            result = Lisped_list()
+            if hasattr(self._car, 'copy'):
+                result._car = self._car.copy()
             else:
-                result.append(ptr[0])
-            ptr = ptr[1]
+                result._car = self._car
+            result._cdr = self._cdr.copy()
         return result
     def __len__(self):
-        result = 0
-        ptr = self._head
-        while ptr:
-            result += 1
-            ptr = ptr[1]
-        return result
+        if self.null():
+            return 0
+        else:
+            return 1 + len(self._cdr)
     def __getitem__(self, val):
         if isinstance(val, slice):
             start = val.start if val.start else 0
             stop = val.stop if val.stop else len(self)
             step = val.step if val.step else 1
-            ptr = self._head
+            target = self
             index = 0
             for _ in range(start):
-                if ptr:
-                    ptr = ptr[1]
+                if not target.null():
+                    target = target.cdr()
                 index += 1
             result = Lisped_list()
             while index < stop:
-                if ptr:
-                    result.append(ptr[0])
+                if not target.null():
+                    result.append(target.car())
                 for _ in range(step):
-                    if ptr:
-                        ptr = ptr[1]
+                    if not target.null():
+                        target = target.cdr()
                         index += 1
             return result
         else:
-            ptr = self._head
-            if not ptr:
-                raise IndexError
-            for _ in range(val):
-                if ptr[1]:
-                    ptr = ptr[1]
-                else:
-                    raise IndexError
-            return ptr[0]
+            if self.null():
+                raise IndexError(f"index out of range.")
+            elif val < 0:
+                raise IndexError(f"index must be non-negative.")
+            elif val == 0:
+                return self.car()
+            else:
+                return self.cdr()[val - 1]
     def __iter__(self):
-        ptr = self._head
-        while ptr:
-            yield ptr[0]
-            ptr = ptr[1]
+        tmp = self
+        while not tmp.null():
+            yield tmp.car()
+            tmp = tmp.cdr()
     def __str__(self):
         return "(" + " ".join([str(val) for val in self]) + ")"
     def __repr__(self):
@@ -143,8 +141,11 @@ def make_proc(arg_names, body):
         global g_current_context
         sub_env = {"parent_env": g_current_context}
         g_current_context = sub_env
-        for index, name in enumerate(arg_names):
-            sub_env[name] = args[index]
+        try:
+            for index, name in enumerate(arg_names):
+                sub_env[name] = args[index]
+        except IndexError:
+            raise TypeError(f"Wrong number of args: setting {arg_names} to {args}")
         retval = [evaluate(b, sub_env) for b in body][-1]
         g_current_context = g_current_context.get("parent_env", global_env)
         return retval
@@ -201,6 +202,7 @@ global_env = {
     "False": False,
     "None": None,
     "file-contents": (lambda f: read_from_file(f)),
+    "str-replace": (lambda s, a, b: s.replace(a, b)),
     # dict methods
     "dict-new": (lambda: dict()),
     "dict-set": (lambda a, key, val: a.update({key: val})),
@@ -256,6 +258,8 @@ def repl():
         try:
             print(eval_string(input("> ")))
         except EOFError:
+            break
+        except KeyboardInterrupt:
             break
 
 # Standard library
