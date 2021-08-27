@@ -1,4 +1,17 @@
 import random
+class Symbol:
+    def __init__(self, name):
+        self.name = name
+    def __eq__(self, other):
+        if hasattr(other, "name"):
+            return self.name == other.name
+        else:
+            return False
+    def __hash__(self):
+        return hash(self.name)
+    def __repr__(self):
+        return f"'{self.name}"
+
 class Lisped_list:
     def __init__(self, iterable=[]):
         self._car = None
@@ -98,9 +111,8 @@ def tokenize(raw_data):
                 token_acc = ""
             tokens.append(")")
         elif character == "\"":
-            if in_string and token_acc == "":
-                tokens.append("")
             in_string = not in_string
+            token_acc += character
         elif character.isspace():
             if token_acc and (not in_string):
                 tokens.append(token_acc)
@@ -132,9 +144,10 @@ def ast_from_tokens(token_list):
 def atom(x):
     if x.isdigit():
         return int(x)
+    elif x.startswith("\"") and x.endswith("\"") and len(x) >= 2:
+        return str(x[1:-1])
     else:
-        return x
-    return x
+        return Symbol(x)
 
 def make_proc(arg_names, body):
     def result(*args):
@@ -164,58 +177,59 @@ def find_in_env(symbol, env):
     elif "parent_env" in env:
         return find_in_env(symbol, env["parent_env"])
     else:
-        return symbol
+        print(f"Can't find {symbol} in environment!")
+        return None
 
 global_env = {
-    "+": (lambda a, b: a+b),
-    "-": (lambda a, b: a-b),
-    "*": (lambda a, b: a*b),
-    "%": (lambda a, b: a%b),
-    "/": (lambda a, b: a//b),
-    "pow": (lambda a, b: a**b),
-    "floatdiv": (lambda a, b: a/b),
-    "<": (lambda a, b: a < b),
-    ">": (lambda a, b: a > b),
-    "string->int-list": (lambda s: [int(c) for c in s]),
-    "print": (lambda *args: print(*args)),
-    "car": (lambda arg: arg.car()),
-    "cdr": (lambda arg: arg.cdr()),
-    "=": (lambda a, b: a == b),
-    "cons": (lambda a, b: b.prepend(a)),
-    "and": (lambda *args: all(args)),
-    "or": (lambda *args: any(args)),
-    "not": (lambda *args: not any(args)),
-    "contains": (lambda a, b: (b in a)),
-    "prompt": (lambda *p: input(" ".join(p))),
-    "lower": (lambda s: s.lower()),
-    "upper": (lambda s: s.upper()),
-    "index": (lambda s, i: s[i]),
-    "begin": (lambda *args: None),
-    "null?": (lambda a: (a==None) or (len(a) == 0)),
-    "->str": (lambda a: str(a)),
-    "->int": (lambda a: int(a)),
-    "->list": (lambda a: Lisped_list(a)),
-    "tuple": (lambda *args: tuple(args)),
-    "length": (lambda a: len(a)),
-    "slice": (lambda s, i, j: s[i:j]),
-    "True": True,
-    "False": False,
-    "None": None,
-    "file-contents": (lambda f: read_from_file(f)),
-    "str-replace": (lambda s, a, b: s.replace(a, b)),
+    Symbol("+"): (lambda a, b: a+b),
+    Symbol("-"): (lambda a, b: a-b),
+    Symbol("*"): (lambda a, b: a*b),
+    Symbol("%"): (lambda a, b: a%b),
+    Symbol("/"): (lambda a, b: a//b),
+    Symbol("pow"): (lambda a, b: a**b),
+    Symbol("floatdiv"): (lambda a, b: a/b),
+    Symbol("<"): (lambda a, b: a < b),
+    Symbol(">"): (lambda a, b: a > b),
+    Symbol("string->int-list"): (lambda s: [int(c) for c in s]),
+    Symbol("print"): (lambda *args: print(*args)),
+    Symbol("car"): (lambda arg: arg.car()),
+    Symbol("cdr"): (lambda arg: arg.cdr()),
+    Symbol("="): (lambda a, b: a == b),
+    Symbol("cons"): (lambda a, b: b.prepend(a)),
+    Symbol("and"): (lambda *args: all(args)),
+    Symbol("or"): (lambda *args: any(args)),
+    Symbol("not"): (lambda *args: not any(args)),
+    Symbol("contains"): (lambda a, b: (b in a)),
+    Symbol("prompt"): (lambda *p: input(" ".join(p))),
+    Symbol("lower"): (lambda s: s.lower()),
+    Symbol("upper"): (lambda s: s.upper()),
+    Symbol("index"): (lambda s, i: s[i]),
+    Symbol("begin"): (lambda *args: None),
+    Symbol("null?"): (lambda a: (a==None) or (len(a) == 0)),
+    Symbol("->str"): (lambda a: str(a)),
+    Symbol("->int"): (lambda a: int(a)),
+    Symbol("->list"): (lambda a: Lisped_list(a)),
+    Symbol("tuple"): (lambda *args: tuple(args)),
+    Symbol("length"): (lambda a: len(a)),
+    Symbol("slice"): (lambda s, i, j: s[i:j]),
+    Symbol("True"): True,
+    Symbol("False"): False,
+    Symbol("None"): None,
+    Symbol("file-contents"): (lambda f: read_from_file(f)),
+    Symbol("str-replace"): (lambda s, a, b: s.replace(a, b)),
     # dict methods
-    "dict-new": (lambda: dict()),
-    "dict-set": (lambda a, key, val: a.update({key: val})),
-    "dict-get": (lambda a, key, default=None: a.get(key, default)),
-    "dict-keys": (lambda d: d.keys()),
-    "dict-update": (lambda a, b: {
+    Symbol("dict-new"): (lambda: dict()),
+    Symbol("dict-set"): (lambda a, key, val: a.update({key: val})),
+    Symbol("dict-get"): (lambda a, key, default=None: a.get(key, default)),
+    Symbol("dict-keys"): (lambda d: d.keys()),
+    Symbol("dict-update"): (lambda a, b: {
         k:v for subdict in [a,b] for k,v in subdict.items()
     }),
     # set methods
-    "set-new": (lambda: set()),
-    "set-add": (lambda a, val: a.add(val)),
+    Symbol("set-new"): (lambda: set()),
+    Symbol("set-add"): (lambda a, val: a.add(val)),
     # random methods
-    "random-choice": (lambda s: random.choice(s)),
+    Symbol("random-choice"): (lambda s: random.choice(s)),
 }
 g_current_context = global_env
 
@@ -223,32 +237,34 @@ def evaluate(x, env=g_current_context):
     #print(f"evaluating {x}")
     #print(f"{[tuple(pair) for pair in env.items() if pair[0]!='parent_env']}")
     if type(x) == Lisped_list:
-        if x[0] == "if":
+        if x[0] == Symbol("if"):
             if evaluate(x[1], env):
                 return evaluate(x[2], env)
             else:
                 if len(x) > 3:
                     return evaluate(x[3], env)
-        elif x.car() == "set!":
+        elif x[0] == Symbol("set!"):
             result = evaluate(x[2], env)
             if hasattr(result, "copy"):
                 result = result.copy()
             env.update({x[1]: result})
             return result
-        elif x.car() == "lambda":
+        elif x[0] == Symbol("lambda"):
             return make_proc(x[1], x[2:])
-        elif x.car() == "quote":
+        elif x[0] == Symbol("quote"):
             return x[1]
-        elif x.car() == "eval":
+        elif x[0] == Symbol("eval"):
             return evaluate(evaluate(x[1],env),env)
         else:
-            fn = evaluate(x.car(), env)
-            if fn:
+            fn = evaluate(x[0], env)
+            if hasattr(fn, "__call__"):
                 return fn(*list(evaluate(s, env) for s in x.cdr()))
             else:
                 print(f"No such function: {x[0]}")
-    else:
+    elif type(x) == Symbol:
         return find_in_env(x, env)
+    else:
+        return x
 
 def eval_string(s):
     return evaluate(ast_from_tokens(tokenize(s)))
@@ -256,7 +272,7 @@ def eval_string(s):
 def repl():
     while True:
         try:
-            print(eval_string(input("> ")))
+            print(repr(eval_string(input("> "))))
         except EOFError:
             break
         except KeyboardInterrupt:
