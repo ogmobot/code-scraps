@@ -16,17 +16,14 @@ class Procedure:
     def __init__(self, arg_names, body):
         self.arg_names = arg_names
         self.body = body
-    def __call__(self, *args):
-        global g_current_context
-        sub_env = {"parent_env": g_current_context}
-        g_current_context = sub_env
-        try:
-            for index, name in enumerate(self.arg_names):
-                sub_env[name] = args[index]
-        except IndexError:
-            raise TypeError(f"Wrong number of args: setting {arg_names} to {args}")
-        retval = [evaluate(b, sub_env) for b in self.body].pop()
-        g_current_context = g_current_context.get("parent_env", global_env)
+    def __call__(self, args, parent_env):
+        env = {"parent_env": parent_env}
+        if len(args) != len(self.arg_names):
+            raise TypeError(f"Wrong number of args: setting {self.arg_names} to {args}")
+        for index, name in enumerate(self.arg_names):
+            env[name] = args[index]
+        retval = [evaluate(b, env) for b in self.body].pop()
+        # TODO tail recursion
         return retval
 
 class Lisped_list:
@@ -206,7 +203,7 @@ global_env = {
     Symbol("lower"): (lambda s: s.lower()),
     Symbol("upper"): (lambda s: s.upper()),
     Symbol("index"): (lambda s, i: s[i]),
-    Symbol("begin"): (lambda *args: None),
+    Symbol("begin"): (lambda *args: args[-1]),
     Symbol("null?"): (lambda a: (a==None) or (len(a) == 0)),
     Symbol("->str"): (lambda a: str(a)),
     Symbol("->int"): (lambda a: int(a)),
@@ -233,9 +230,8 @@ global_env = {
     # random methods
     Symbol("random-choice"): (lambda s: random.choice(s)),
 }
-g_current_context = global_env
 
-def evaluate(x, env=g_current_context):
+def evaluate(x, env=global_env):
     #print(f"evaluating {x}")
     #print(f"{[tuple(pair) for pair in env.items() if pair[0]!='parent_env']}")
     if type(x) == Lisped_list:
@@ -260,7 +256,13 @@ def evaluate(x, env=g_current_context):
         else:
             fn = evaluate(x[0], env)
             if hasattr(fn, "__call__"):
-                return fn(*list(evaluate(s, env) for s in x.cdr()))
+                args = [evaluate(val, env) for val in x.cdr()]
+                if type(fn) == Procedure:
+                    retval = fn(args, env)
+                    return retval
+                else:
+                    # This must be a Python function
+                    return fn(*args)
             else:
                 print(f"No such function: {x[0]}")
     elif type(x) == Symbol:
@@ -269,7 +271,7 @@ def evaluate(x, env=g_current_context):
         return x
 
 def eval_string(s):
-    return evaluate(ast_from_tokens(tokenize(s)))
+    return evaluate(ast_from_tokens(tokenize("(begin " + s + ")")))
 
 def repl():
     while True:
@@ -282,7 +284,6 @@ def repl():
 
 # Standard library
 eval_string("""
-(begin
 (set! append (lambda (a b)
     (if (null? a)
         b
@@ -343,4 +344,4 @@ eval_string("""
     (if (< rangestart rangeend)
         (cons rangestart (range (+ rangestart 1) rangeend))
         (quote ()))))
-)""")
+""")
