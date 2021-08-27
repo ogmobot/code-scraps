@@ -12,6 +12,23 @@ class Symbol:
     def __repr__(self):
         return f"'{self.name}"
 
+class Procedure:
+    def __init__(self, arg_names, body):
+        self.arg_names = arg_names
+        self.body = body
+    def __call__(self, *args):
+        global g_current_context
+        sub_env = {"parent_env": g_current_context}
+        g_current_context = sub_env
+        try:
+            for index, name in enumerate(self.arg_names):
+                sub_env[name] = args[index]
+        except IndexError:
+            raise TypeError(f"Wrong number of args: setting {arg_names} to {args}")
+        retval = [evaluate(b, sub_env) for b in self.body].pop()
+        g_current_context = g_current_context.get("parent_env", global_env)
+        return retval
+
 class Lisped_list:
     def __init__(self, iterable=[]):
         self._car = None
@@ -86,10 +103,8 @@ class Lisped_list:
         while not tmp.null():
             yield tmp.car()
             tmp = tmp.cdr()
-    def __str__(self):
-        return "(" + " ".join([str(val) for val in self]) + ")"
     def __repr__(self):
-        return str(self)
+        return "(" + " ".join([repr(val) for val in self]) + ")"
 
 def tokenize(raw_data):
     token_acc = ""
@@ -150,21 +165,6 @@ def atom(x):
         return str(x[1:-1])
     else:
         return Symbol(x)
-
-def make_proc(arg_names, body):
-    def result(*args):
-        global g_current_context
-        sub_env = {"parent_env": g_current_context}
-        g_current_context = sub_env
-        try:
-            for index, name in enumerate(arg_names):
-                sub_env[name] = args[index]
-        except IndexError:
-            raise TypeError(f"Wrong number of args: setting {arg_names} to {args}")
-        retval = [evaluate(b, sub_env) for b in body][-1]
-        g_current_context = g_current_context.get("parent_env", global_env)
-        return retval
-    return result
 
 def read_from_file(filename):
     with open(filename, "r") as f:
@@ -252,7 +252,7 @@ def evaluate(x, env=g_current_context):
             env.update({x[1]: result})
             return result
         elif x[0] == Symbol("lambda"):
-            return make_proc(x[1], x[2:])
+            return Procedure(x[1], x[2:])
         elif x[0] == Symbol("quote"):
             return x[1]
         elif x[0] == Symbol("eval"):
