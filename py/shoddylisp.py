@@ -123,6 +123,8 @@ def tokenize(raw_data):
                 pass
         else:
             token_acc += character
+    if token_acc:
+        tokens.append(token_acc)
     return tokens
 
 def ast_from_tokens(token_list):
