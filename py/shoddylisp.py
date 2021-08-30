@@ -31,8 +31,13 @@ class Lisped_list:
         self._car = None
         self._cdr = None
         if iterable:
-            self._car = iterable[0]
-            self._cdr = Lisped_list(iterable[1:])
+            iterable = iter(iterable)
+            try:
+                self._car = next(iterable)
+                self._cdr = Lisped_list(iterable)
+            except StopIteration:
+                self._car = None
+                self._cdr = None
     def null(self):
         return (self._car == None) and (self._cdr == None)
     def car(self):
