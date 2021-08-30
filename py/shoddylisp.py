@@ -105,8 +105,20 @@ class Lisped_list:
         while not tmp.null():
             yield tmp.car()
             tmp = tmp.cdr()
+    def iter_cycle_safe(self):
+        seen = set()
+        tmp = self
+        while (not tmp.null()) and (tmp not in seen):
+            seen.add(tmp)
+            yield tmp.car()
+            tmp = tmp.cdr()
+        if not tmp.null():
+            yield Symbol("...")
     def __repr__(self):
-        return "(" + " ".join([repr(val) for val in self]) + ")"
+        return "(" + " ".join([
+            (repr(val) if val != self else "(...)")
+            for val in self.iter_cycle_safe()
+        ]) + ")"
 
 def tokenize(raw_data):
     token_acc = ""
