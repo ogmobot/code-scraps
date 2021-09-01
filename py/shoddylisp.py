@@ -10,7 +10,7 @@ class Symbol:
     def __hash__(self):
         return hash(self.name)
     def __repr__(self):
-        return f"'{self.name}"
+        return self.name
 
 class Procedure:
     def __init__(self, arg_names, body):
