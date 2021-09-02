@@ -119,6 +119,8 @@ class Lisped_list:
             (repr(val) if val != self else "(...)")
             for val in self.iter_cycle_safe()
         ]) + ")"
+    def __bool__(self):
+        return not self.null()
 
 def tokenize(raw_data):
     token_acc = ""
@@ -220,7 +222,7 @@ global_env = {
     Symbol("upper"): (lambda s: s.upper()),
     Symbol("index"): (lambda s, i: s[i]),
     Symbol("begin"): (lambda *args: args[-1]),
-    Symbol("null?"): (lambda a: (a==None) or (len(a) == 0)),
+    Symbol("null?"): (lambda a: bool(a) == False),
     Symbol("->str"): (lambda a: str(a)),
     Symbol("->int"): (lambda a: int(a)),
     Symbol("->list"): (lambda a: Lisped_list(a)),
