@@ -289,7 +289,10 @@ def evaluate(x, env=global_env):
         return x
 
 def eval_string(s):
-    return evaluate(ast_from_tokens(tokenize("(begin " + s + ")")))
+    try:
+        return evaluate(ast_from_tokens(tokenize("(begin " + s + ")")))
+    except SyntaxError as s:
+        print(f"Syntax Error: {s}")
 
 def repl():
     while True:
