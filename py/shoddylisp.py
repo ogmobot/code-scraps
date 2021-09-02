@@ -206,7 +206,6 @@ global_env = {
     Symbol("floatdiv"): (lambda a, b: a/b),
     Symbol("<"): (lambda a, b: a < b),
     Symbol(">"): (lambda a, b: a > b),
-    Symbol("string->int-list"): (lambda s: [int(c) for c in s]),
     Symbol("print"): (lambda *args: print(*args)),
     Symbol("car"): (lambda arg: arg.car()),
     Symbol("cdr"): (lambda arg: arg.cdr()),
@@ -231,7 +230,7 @@ global_env = {
     Symbol("True"): True,
     Symbol("False"): False,
     Symbol("None"): None,
-    Symbol("file-contents"): (lambda f: read_from_file(f)),
+    Symbol("file-contents"): read_from_file, # takes filename as arg
     Symbol("str-replace"): (lambda s, a, b: s.replace(a, b)),
     # dict methods
     Symbol("dict-new"): (lambda: dict()),
