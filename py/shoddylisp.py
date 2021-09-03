@@ -307,6 +307,12 @@ def repl():
 
 # Standard library
 eval_string("""
+(set! cadr (lambda (a)
+    (car (cdr a))))
+
+(set! caddr (lambda (a)
+    (car (cdr (cdr a)))))
+
 (set! append (lambda (a b)
     (if (null? a)
         b
@@ -337,6 +343,11 @@ eval_string("""
 
 (set! apply (lambda (apply-fn apply-args)
     (eval (cons apply-fn apply-args))))
+
+(set! iterate (lambda (iter-fn iter-arg iter-count)
+    (if (= iter-count 0)
+        iter-arg
+        (iterate iter-fn (iter-fn iter-arg) (- iter-count 1)))))
 
 (set! qsort (lambda (qcmp qseq)
     (if (null? qseq)
