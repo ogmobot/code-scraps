@@ -221,7 +221,7 @@ global_env = {
     Symbol("lower"): (lambda s: s.lower()),
     Symbol("upper"): (lambda s: s.upper()),
     Symbol("index"): (lambda s, i: s[i]),
-    Symbol("begin"): (lambda *args: args[-1]),
+    Symbol("begin"): (lambda *args: args[-1] if args else None),
     Symbol("null?"): (lambda a: bool(a) == False),
     Symbol("->str"): (lambda a: str(a)),
     Symbol("->int"): (lambda a: int(a)),
@@ -297,7 +297,9 @@ def eval_string(s):
 def repl():
     while True:
         try:
-            print(repr(eval_string(input("> "))))
+            read = input("> ")
+            if read:
+                print(repr(eval_string(read)))
         except EOFError:
             break
         except KeyboardInterrupt:
