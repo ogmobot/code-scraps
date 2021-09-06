@@ -389,10 +389,25 @@ eval_string("""
 (defun reverse (revseq)
     (foldl cons revseq nil))
 
-(defun map (mapfn mapseq)
+(defun map1 (mapfn mapseq)
     (if (null? mapseq)
         nil
-        (cons (mapfn (car mapseq)) (map mapfn (cdr mapseq)))))
+        (cons (mapfn (car mapseq)) (map1 mapfn (cdr mapseq)))))
+
+(defun map (mapfn &mapseqs)
+    (if (foldl or (map1 null? mapseqs) False)
+        nil
+        (cons
+            (eval (cons mapfn (map1 car mapseqs)))
+            (eval
+                (cons (quote map)
+                    (cons (quote mapfn)
+                        (map1
+                            (lambda (x)
+                                (cons
+                                    (quote quote)
+                                    (cons (cdr x) nil)))
+                            mapseqs)))))))
 
 (defun foldl (foldfn foldseq foldacc)
     (if (null? foldseq)
@@ -439,7 +454,13 @@ eval_string("""
 (defun split-line (line delimiter-list test-index)
     (if (= test-index (length line))
         (cons line nil)
-        (if (apply or (map (lambda (x) (= x (index line test-index))) delimiter-list))
+        (if
+            (foldl
+                or
+                (map1
+                    (lambda (x) (= x (index line test-index)))
+                    delimiter-list)
+                False)
             (cons
                 (slice line 0 test-index)
                 (split-line
