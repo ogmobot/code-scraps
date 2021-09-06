@@ -27,6 +27,12 @@ class Procedure:
         return retval
 
 class Lisped_list:
+    @staticmethod
+    def cons(car, cdr):
+        result = Lisped_list()
+        result._car = car
+        result._cdr = cdr
+        return result
     def __init__(self, iterable=[]):
         self._car = None
         self._cdr = None
@@ -64,13 +70,18 @@ class Lisped_list:
                 result._car = self._car.copy()
             else:
                 result._car = self._car
-            result._cdr = self._cdr.copy()
+            if hasattr(self._cdr, 'copy'):
+                result._cdr = self._cdr.copy()
+            else:
+                result._cdr = self._cdr
         return result
     def __len__(self):
         if self.null():
             return 0
-        else:
+        elif hasattr(self._cdr, "__len__"):
             return 1 + len(self._cdr)
+        else:
+            return 1
     def __getitem__(self, val):
         if isinstance(val, slice):
             start = val.start if val.start else 0
@@ -79,20 +90,20 @@ class Lisped_list:
             target = self
             index = 0
             for _ in range(start):
-                if not target.null():
+                if (not target.null()) and hasattr(target, "cdr"):
                     target = target.cdr()
                 index += 1
             result = Lisped_list()
             while index < stop:
-                if not target.null():
+                if (not target.null()) and hasattr(target, "car"):
                     result.append(target.car())
                 for _ in range(step):
-                    if not target.null():
+                    if (not target.null()) and hasattr(target, "cdr"):
                         target = target.cdr()
                         index += 1
             return result
         else:
-            if self.null():
+            if self.null() or (not hasattr(self._cdr, "__getitem__")):
                 raise IndexError(f"index out of range.")
             elif val < 0:
                 raise IndexError(f"index must be non-negative.")
@@ -102,23 +113,30 @@ class Lisped_list:
                 return self.cdr()[val - 1]
     def __iter__(self):
         tmp = self
-        while not tmp.null():
+        while (not tmp.null()) and hasattr(tmp.cdr(), "car"):
             yield tmp.car()
             tmp = tmp.cdr()
     def iter_cycle_safe(self):
         seen = set()
         tmp = self
-        while (not tmp.null()) and (tmp not in seen):
+        while all([
+            (not tmp.null()),
+            (tmp not in seen),
+            hasattr(tmp.cdr(), "car")]):
             seen.add(tmp)
             yield tmp.car()
             tmp = tmp.cdr()
-        if not tmp.null():
+        if tmp in seen:
             yield Symbol("...")
     def __repr__(self):
-        return "(" + " ".join([
-            (repr(val) if val != self else "(...)")
-            for val in self.iter_cycle_safe()
-        ]) + ")"
+        if type(self._cdr) == Lisped_list:
+            return "(" + " ".join([
+                (repr(val) if val != self else "(...)")
+                for val in self.iter_cycle_safe()
+            ]) + ")"
+        else:
+            # dotted pair
+            return f"({repr(self._car)} . {repr(self._cdr)})"
     def __bool__(self):
         return not self.null()
 
@@ -212,7 +230,7 @@ global_env = {
     Symbol("car"): (lambda arg: arg.car()),
     Symbol("cdr"): (lambda arg: arg.cdr()),
     Symbol("="): (lambda a, b: a == b),
-    Symbol("cons"): (lambda a, b: b.prepend(a)),
+    Symbol("cons"): (lambda a, b: Lisped_list.cons(a, b)),
     Symbol("and"): (lambda *args: all(args)),
     Symbol("or"): (lambda *args: any(args)),
     Symbol("not"): (lambda *args: not any(args)),
