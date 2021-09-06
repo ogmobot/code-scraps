@@ -327,6 +327,8 @@ def repl():
 
 # Standard library
 eval_string("""
+(set! nil (quote ()))
+
 (set! cadr (lambda (a)
     (car (cdr a))))
 
