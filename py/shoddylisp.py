@@ -135,7 +135,7 @@ class Lisped_list:
                 for val in self.iter_cycle_safe()
             ]) + ")"
         elif self.null():
-            return "()"
+            return "nil"
         else:
             # dotted pair
             return f"({repr(self._car)} . {repr(self._cdr)})"
