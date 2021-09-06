@@ -20,11 +20,17 @@ class Procedure:
         env = {"parent_env": parent_env}
         if len(args) != len(self.arg_names):
             raise TypeError(f"Wrong number of args: setting {self.arg_names} to {args}")
-        for index, name in enumerate(self.arg_names):
-            env[name] = args[index]
+        env.update(self.args_env(args))
         retval = [evaluate(b, env) for b in self.body].pop()
         # TODO tail recursion
         return retval
+    def args_env(self, args):
+        return {
+            name: args[index] for index, name in enumerate(self.arg_names)
+        }
+
+class Macro(Procedure):
+    pass
 
 class Lisped_list:
     @staticmethod
@@ -288,6 +294,8 @@ def evaluate(x, env=global_env):
             return result
         elif x[0] == Symbol("lambda"):
             return Procedure(x[1], x[2:])
+        elif x[0] == Symbol("macro"):
+            return Macro(x[1], x[2:])
         elif x[0] == Symbol("quote"):
             return x[1]
         elif x[0] == Symbol("eval"):
@@ -295,13 +303,20 @@ def evaluate(x, env=global_env):
         else:
             fn = evaluate(x[0], env)
             if hasattr(fn, "__call__"):
-                args = [evaluate(val, env) for val in x.cdr()]
-                if type(fn) == Procedure:
-                    retval = fn(args, env)
-                    return retval
+                if type(fn) == Macro:
+                    # expand macro
+                    args = x.cdr()
+                    macro_ast = fn(args, env)
+                    #print(f"Expanded macro to: {repr(macro_ast)}")
+                    return evaluate(macro_ast, env)
                 else:
-                    # This must be a Python function
-                    return fn(*args)
+                    args = [evaluate(val, env) for val in x.cdr()]
+                    if type(fn) == Procedure:
+                        retval = fn(args, env)
+                        return retval
+                    else:
+                        # This must be a Python function
+                        return fn(*args)
             else:
                 print(f"No such function: {x[0]}")
     elif type(x) == Symbol:
@@ -328,6 +343,24 @@ def repl():
 
 # Standard library
 eval_string("""
+(set! defmacro (macro (mac-name mac-args mac-body)
+    (cons (quote set!)
+        (cons mac-name
+            (cons
+                (cons (quote macro)
+                    (cons mac-args
+                        (cons mac-body nil)))
+                nil)))))
+
+(defmacro defun (defun-name defun-args defun-body)
+    (cons (quote set!)
+        (cons defun-name
+            (cons
+                (cons (quote lambda)
+                    (cons defun-args
+                        (cons defun-body nil)))
+                nil))))
+
 (set! cadr (lambda (a)
     (car (cdr a))))
 
