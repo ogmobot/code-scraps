@@ -309,6 +309,9 @@ def evaluate(x, env=global_env):
             return x[1]
         elif x[0] == Symbol("eval"):
             return evaluate(evaluate(x[1],env),env)
+        elif x[0] == Symbol("expand-macro"):
+            expr = x[1]
+            return (evaluate(expr[0], env))(expr.cdr(), env)
         else:
             fn = evaluate(x[0], env)
             if hasattr(fn, "__call__"):
