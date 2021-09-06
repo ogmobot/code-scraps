@@ -361,63 +361,63 @@ eval_string("""
                         (cons defun-body nil)))
                 nil))))
 
-(set! cadr (lambda (a)
-    (car (cdr a))))
+(defun cadr (a)
+    (car (cdr a)))
 
-(set! caddr (lambda (a)
-    (car (cdr (cdr a)))))
+(defun caddr (a)
+    (car (cdr (cdr a))))
 
-(set! append (lambda (a b)
+(defun append (a b)
     (if (null? a)
         b
-        (cons (car a) (append (cdr a) b)))))
+        (cons (car a) (append (cdr a) b))))
 
-(set! reverse (lambda (revseq)
-    (foldl cons revseq nil)))
+(defun reverse (revseq)
+    (foldl cons revseq nil))
 
-(set! map (lambda (mapfn mapseq)
+(defun map (mapfn mapseq)
     (if (null? mapseq)
         nil
-        (cons (mapfn (car mapseq)) (map mapfn (cdr mapseq))))))
+        (cons (mapfn (car mapseq)) (map mapfn (cdr mapseq)))))
 
-(set! foldl (lambda (foldfn foldseq foldacc)
+(defun foldl (foldfn foldseq foldacc)
     (if (null? foldseq)
         foldacc
-        (foldl foldfn (cdr foldseq) (foldfn (car foldseq) foldacc)))))
+        (foldl foldfn (cdr foldseq) (foldfn (car foldseq) foldacc))))
 
-(set! filter (lambda (filterfn fseq)
+(defun filter (filterfn fseq)
     (if (null? fseq)
         nil
         (if (filterfn (car fseq))
             (cons (car fseq) (filter filterfn (cdr fseq)))
-            (filter filterfn (cdr fseq))))))
+            (filter filterfn (cdr fseq)))))
 
-(set! countif (lambda (countiffn countifseq)
-    (length (filter countiffn countifseq))))
+(defun countif (countiffn countifseq)
+    (length (filter countiffn countifseq)))
 
-(set! apply (lambda (apply-fn apply-args)
-    (eval (cons apply-fn apply-args))))
+(defun apply (apply-fn apply-args)
+    (eval (cons apply-fn apply-args)))
 
-(set! iterate (lambda (iter-fn iter-arg iter-count)
+(defun iterate (iter-fn iter-arg iter-count)
     (if (= iter-count 0)
         iter-arg
-        (iterate iter-fn (iter-fn iter-arg) (- iter-count 1)))))
+        (iterate iter-fn (iter-fn iter-arg) (- iter-count 1))))
 
-(set! qsort (lambda (qcmp qseq)
+(defun qsort (qcmp qseq)
     (if (null? qseq)
         nil
         (append
             (qsort qcmp (filter (lambda (x) (qcmp x (car qseq))) (cdr qseq)))
             (cons
                 (car qseq)
-                (qsort qcmp (filter (lambda (x) (not (qcmp x (car qseq)))) (cdr qseq))))))))
+                (qsort qcmp (filter (lambda (x) (not (qcmp x (car qseq)))) (cdr qseq)))))))
 
-(set! delimit (lambda (seq delimiter)
+(defun delimit (seq delimiter)
     (if (= (length seq) 1)
         (car seq)
-        (+ (+ (car seq) delimiter) (delimit (cdr seq) delimiter)))))
+        (+ (+ (car seq) delimiter) (delimit (cdr seq) delimiter))))
 
-(set! split-line (lambda (line delimiter-list test-index)
+(defun split-line (line delimiter-list test-index)
     (if (= test-index (length line))
         (cons line nil)
         (if (apply or (map (lambda (x) (= x (index line test-index))) delimiter-list))
@@ -427,26 +427,27 @@ eval_string("""
                     (slice line (+ test-index 1) (length line))
                     delimiter-list
                     0))
-            (split-line line delimiter-list (+ test-index 1))))))
-(set! range (lambda (rangestart rangeend)
+            (split-line line delimiter-list (+ test-index 1)))))
+
+(defun range (rangestart rangeend)
     (if (< rangestart rangeend)
         (cons rangestart (range (+ rangestart 1) rangeend))
-        nil)))
+        nil))
 
-(set! acons (lambda (a-key a-value a-list)
-    (cons (cons a-key a-value) a-list)))
+(defun acons (a-key a-value a-list)
+    (cons (cons a-key a-value) a-list))
 
-(set! assoc (lambda (a-key a-list)
+(defun assoc (a-key a-list)
     (if (null? a-list)
         nil
         (if (= a-key (car (car a-list)))
             (car a-list)
-            (assoc a-key (cdr a-list))))))
+            (assoc a-key (cdr a-list)))))
 
-(set! rassoc (lambda (a-key a-list)
+(defun rassoc (a-key a-list)
     (if (null? a-list)
         nil
         (if (= a-key (cdr (car a-list)))
             (car a-list)
-            (rassoc a-key (cdr a-list))))))
+            (rassoc a-key (cdr a-list)))))
 """)
