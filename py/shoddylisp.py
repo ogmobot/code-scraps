@@ -18,16 +18,25 @@ class Procedure:
         self.body = body
     def __call__(self, args, parent_env):
         env = {"parent_env": parent_env}
-        if len(args) != len(self.arg_names):
-            raise TypeError(f"Wrong number of args: setting {self.arg_names} to {args}")
         env.update(self.args_env(args))
         retval = [evaluate(b, env) for b in self.body].pop()
         # TODO tail recursion
         return retval
     def args_env(self, args):
-        return {
-            name: args[index] for index, name in enumerate(self.arg_names)
-        }
+        arg_ptr = Lisped_list(args)
+        new_env = {}
+        for index, symbol in enumerate(self.arg_names):
+            if symbol.name.startswith("&"):
+                new_env[Symbol(symbol.name[1:])] = arg_ptr
+                break
+            if arg_ptr.null():
+                raise TypeError(f"Not enough args: needed {self.arg_names}, got {args}")
+            new_env[symbol] = arg_ptr.car()
+            arg_ptr = arg_ptr.cdr()
+        else:
+            if not arg_ptr.null():
+                raise TypeError(f"Too many args: needed {self.arg_names}, got {args}")
+        return new_env
 
 class Macro(Procedure):
     pass
@@ -310,7 +319,7 @@ def evaluate(x, env=global_env):
                     #print(f"Expanded macro to: {repr(macro_ast)}")
                     return evaluate(macro_ast, env)
                 else:
-                    args = [evaluate(val, env) for val in x.cdr()]
+                    args = Lisped_list((evaluate(val, env) for val in x.cdr()))
                     if type(fn) == Procedure:
                         retval = fn(args, env)
                         return retval
