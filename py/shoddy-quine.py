@@ -6,8 +6,8 @@ quine = """
         (cons
             (cons
                 (quote quote)
-                (cons x (quote ())))
-            (quote ()))))
+                (cons x nil))
+            nil)))
 (quote
 (lambda (x)
     (cons
@@ -15,8 +15,8 @@ quine = """
         (cons
             (cons
                 (quote quote)
-                (cons x (quote ())))
-            (quote ()))))))
+                (cons x nil))
+            nil)))))
 """
 
 quine = " ".join(quine.strip().split())

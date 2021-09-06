@@ -252,6 +252,7 @@ global_env = {
     Symbol("True"): True,
     Symbol("False"): False,
     Symbol("None"): None,
+    Symbol("nil"): Lisped_list(),
     Symbol("file-contents"): read_from_file, # takes filename as arg
     Symbol("str-replace"): (lambda s, a, b: s.replace(a, b)),
     # dict methods
@@ -327,8 +328,6 @@ def repl():
 
 # Standard library
 eval_string("""
-(set! nil (quote ()))
-
 (set! cadr (lambda (a)
     (car (cdr a))))
 
