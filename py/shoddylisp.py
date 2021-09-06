@@ -340,11 +340,11 @@ eval_string("""
         (cons (car a) (append (cdr a) b)))))
 
 (set! reverse (lambda (revseq)
-    (foldl cons revseq (quote ()))))
+    (foldl cons revseq nil)))
 
 (set! map (lambda (mapfn mapseq)
     (if (null? mapseq)
-        (quote ())
+        nil
         (cons (mapfn (car mapseq)) (map mapfn (cdr mapseq))))))
 
 (set! foldl (lambda (foldfn foldseq foldacc)
@@ -354,7 +354,7 @@ eval_string("""
 
 (set! filter (lambda (filterfn fseq)
     (if (null? fseq)
-        (quote ())
+        nil
         (if (filterfn (car fseq))
             (cons (car fseq) (filter filterfn (cdr fseq)))
             (filter filterfn (cdr fseq))))))
@@ -372,7 +372,7 @@ eval_string("""
 
 (set! qsort (lambda (qcmp qseq)
     (if (null? qseq)
-        (quote ())
+        nil
         (append
             (qsort qcmp (filter (lambda (x) (qcmp x (car qseq))) (cdr qseq)))
             (cons
@@ -386,7 +386,7 @@ eval_string("""
 
 (set! split-line (lambda (line delimiter-list test-index)
     (if (= test-index (length line))
-        (cons line (quote ()))
+        (cons line nil)
         (if (apply or (map (lambda (x) (= x (index line test-index))) delimiter-list))
             (cons
                 (slice line 0 test-index)
@@ -398,21 +398,21 @@ eval_string("""
 (set! range (lambda (rangestart rangeend)
     (if (< rangestart rangeend)
         (cons rangestart (range (+ rangestart 1) rangeend))
-        (quote ()))))
+        nil)))
 
 (set! acons (lambda (a-key a-value a-list)
     (cons (cons a-key a-value) a-list)))
 
 (set! assoc (lambda (a-key a-list)
     (if (null? a-list)
-        (quote ())
+        nil
         (if (= a-key (car (car a-list)))
             (car a-list)
             (assoc a-key (cdr a-list))))))
 
 (set! rassoc (lambda (a-key a-list)
     (if (null? a-list)
-        (quote ())
+        nil
         (if (= a-key (cdr (car a-list)))
             (car a-list)
             (rassoc a-key (cdr a-list))))))
