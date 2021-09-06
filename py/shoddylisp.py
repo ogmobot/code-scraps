@@ -134,6 +134,8 @@ class Lisped_list:
                 (repr(val) if val != self else "(...)")
                 for val in self.iter_cycle_safe()
             ]) + ")"
+        elif self.null():
+            return "()"
         else:
             # dotted pair
             return f"({repr(self._car)} . {repr(self._cdr)})"
@@ -396,4 +398,21 @@ eval_string("""
     (if (< rangestart rangeend)
         (cons rangestart (range (+ rangestart 1) rangeend))
         (quote ()))))
+
+(set! acons (lambda (a-key a-value a-list)
+    (cons (cons a-key a-value) a-list)))
+
+(set! assoc (lambda (a-key a-list)
+    (if (null? a-list)
+        (quote ())
+        (if (= a-key (car (car a-list)))
+            (cdr (car a-list))
+            (assoc a-key (cdr a-list))))))
+
+(set! rassoc (lambda (a-key a-list)
+    (if (null? a-list)
+        (quote ())
+        (if (= a-key (cdr (car a-list)))
+            (car (car a-list))
+            (rassoc a-key (cdr a-list))))))
 """)
