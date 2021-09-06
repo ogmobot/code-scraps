@@ -364,13 +364,12 @@ eval_string("""
                         (cons mac-body nil)))
                 nil)))))
 
-(defmacro defun (defun-name defun-args defun-body)
+(defmacro defun (defun-name defun-args &defun-body)
     (cons (quote set!)
         (cons defun-name
             (cons
                 (cons (quote lambda)
-                    (cons defun-args
-                        (cons defun-body nil)))
+                    (cons defun-args defun-body))
                 nil))))
 
 (defun cadr (a)
@@ -379,10 +378,13 @@ eval_string("""
 (defun caddr (a)
     (car (cdr (cdr a))))
 
-(defun append (a b)
+(defun append-two (a b)
     (if (null? a)
         b
-        (cons (car a) (append (cdr a) b))))
+        (cons (car a) (append-two (cdr a) b))))
+
+(defun append (&lists)
+    (foldr append-two lists nil))
 
 (defun reverse (revseq)
     (foldl cons revseq nil))
@@ -396,6 +398,11 @@ eval_string("""
     (if (null? foldseq)
         foldacc
         (foldl foldfn (cdr foldseq) (foldfn (car foldseq) foldacc))))
+
+(defun foldr (foldfn foldseq foldacc)
+    (if (null? foldseq)
+        foldacc
+        (foldr foldfn (cdr foldseq) (foldfn foldacc (car foldseq)))))
 
 (defun filter (filterfn fseq)
     (if (null? fseq)
