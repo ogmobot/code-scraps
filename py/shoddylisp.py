@@ -372,6 +372,18 @@ eval_string("""
                     (cons defun-args defun-body))
                 nil))))
 
+(defmacro cond (&params)
+    (if (null? params)
+        (quote nil)
+        (cons (quote if)
+            (cons (car (car params))
+                (cons (car (cdr (car params)))
+                    (cons
+                        (cons
+                            (quote cond)
+                            (cdr params))
+                        nil))))))
+
 (defun cadr (a)
     (car (cdr a)))
 
