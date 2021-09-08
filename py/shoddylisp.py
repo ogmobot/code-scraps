@@ -234,55 +234,60 @@ def find_in_env(symbol, env):
         return None
 
 global_env = {
-    Symbol("+"): (lambda a, b: a+b),
-    Symbol("-"): (lambda a, b: a-b),
-    Symbol("*"): (lambda a, b: a*b),
-    Symbol("%"): (lambda a, b: a%b),
-    Symbol("/"): (lambda a, b: a//b),
-    Symbol("pow"): (lambda a, b: a**b),
+    Symbol("+"):        (lambda a, b: a+b),
+    Symbol("-"):        (lambda a, b: a-b),
+    Symbol("*"):        (lambda a, b: a*b),
+    Symbol("%"):        (lambda a, b: a%b),
+    Symbol("/"):        (lambda a, b: a//b),
+    Symbol("pow"):      (lambda a, b: a**b),
     Symbol("floatdiv"): (lambda a, b: a/b),
-    Symbol("<"): (lambda a, b: a < b),
-    Symbol(">"): (lambda a, b: a > b),
-    Symbol("print"): (lambda *args: print(*args)),
-    Symbol("car"): (lambda arg: arg.car()),
-    Symbol("cdr"): (lambda arg: arg.cdr()),
-    Symbol("="): (lambda a, b: a == b),
-    Symbol("cons"): (lambda a, b: Lisped_list.cons(a, b)),
-    Symbol("and"): (lambda *args: all(args)),
-    Symbol("or"): (lambda *args: any(args)),
-    Symbol("not"): (lambda *args: not any(args)),
+    Symbol("<"):        (lambda a, b: a < b),
+    Symbol(">"):        (lambda a, b: a > b),
+    Symbol("print"):    (lambda *args: print(*args)),
+    Symbol("car"):      (lambda arg: arg.car()),
+    Symbol("cdr"):      (lambda arg: arg.cdr()),
+    Symbol("="):        (lambda a, b: a == b),
+    Symbol("cons"):     (lambda a, b: Lisped_list.cons(a, b)),
+    Symbol("and"):      (lambda *args: all(args)),
+    Symbol("or"):       (lambda *args: any(args)),
+    Symbol("not"):      (lambda *args: not any(args)),
     Symbol("contains"): (lambda a, b: (b in a)),
-    Symbol("prompt"): (lambda *p: input(" ".join(p))),
-    Symbol("lower"): (lambda s: s.lower()),
-    Symbol("upper"): (lambda s: s.upper()),
-    Symbol("index"): (lambda s, i: s[i]),
-    Symbol("begin"): (lambda *args: args[-1] if args else None),
-    Symbol("null?"): (lambda a: bool(a) == False),
-    Symbol("->str"): (lambda a: str(a)),
-    Symbol("->int"): (lambda a: int(a)),
-    Symbol("->list"): (lambda a: Lisped_list(a)),
-    Symbol("tuple"): (lambda *args: tuple(args)),
-    Symbol("length"): (lambda a: len(a)),
-    Symbol("slice"): (lambda s, i, j: s[i:j]),
-    Symbol("True"): True,
-    Symbol("False"): False,
-    Symbol("None"): None,
-    Symbol("nil"): Lisped_list(),
-    Symbol("file-contents"): read_from_file, # takes filename as arg
-    Symbol("str-replace"): (lambda s, a, b: s.replace(a, b)),
+    Symbol("prompt"):   (lambda *p: input(" ".join(p))),
+    Symbol("lower"):    (lambda s: s.lower()),
+    Symbol("upper"):    (lambda s: s.upper()),
+    Symbol("index"):    (lambda s, i: s[i]),
+    Symbol("begin"):    (lambda *args: args[-1] if args else None),
+    Symbol("null?"):    (lambda a: bool(a) == False),
+    Symbol("->str"):    (lambda a: str(a)),
+    Symbol("->int"):    (lambda a: int(a)),
+    Symbol("->list"):   (lambda a: Lisped_list(a)),
+    Symbol("tuple"):    (lambda *args: tuple(args)),
+    Symbol("length"):   (lambda a: len(a)),
+    Symbol("slice"):    (lambda s, i, j: s[i:j]),
+    Symbol("True"):     True,
+    Symbol("False"):    False,
+    Symbol("None"):     None,
+    Symbol("nil"):      Lisped_list(),
+    Symbol("file-contents"):
+                        read_from_file, # takes filename as arg
+    Symbol("str-replace"):
+                        (lambda s, a, b: s.replace(a, b)),
     # dict methods
     Symbol("dict-new"): (lambda: dict()),
     Symbol("dict-set"): (lambda a, key, val: a.update({key: val})),
     Symbol("dict-get"): (lambda a, key, default=None: a.get(key, default)),
-    Symbol("dict-keys"): (lambda d: d.keys()),
-    Symbol("dict-update"): (lambda a, b: {
+    Symbol("dict-keys"):
+                        (lambda d: d.keys()),
+    Symbol("dict-update"):
+                        (lambda a, b: {
         k:v for subdict in [a,b] for k,v in subdict.items()
     }),
     # set methods
-    Symbol("set-new"): (lambda: set()),
-    Symbol("set-add"): (lambda a, val: a.add(val)),
+    Symbol("set-new"):  (lambda: set()),
+    Symbol("set-add"):  (lambda a, val: a.add(val)),
     # random methods
-    Symbol("random-choice"): (lambda s: random.choice(s)),
+    Symbol("random-choice"):
+                        (lambda s: random.choice(s)),
 }
 
 def evaluate(x, env=global_env):
