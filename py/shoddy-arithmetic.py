@@ -1,16 +1,23 @@
 import shoddylisp
 
+shoddylisp.global_env.update({
+    shoddylisp.Symbol("<<1"):   (lambda a: a << 1),
+    shoddylisp.Symbol(">>1"):   (lambda a: a >> 1),
+    shoddylisp.Symbol("&1"):  (lambda a: a & 1),
+    shoddylisp.Symbol("|"):    (lambda a, b: a | b),
+})
+
 shoddylisp.eval_string("""
 (defun ->bin-list (n)
     ;; convert an integer into binary digits (least sig. fig. first)
     (if (= n 0)
         nil
-        (cons (% n 2) (->bin-list (/ n 2)))))
+        (cons (&1 n) (->bin-list (>>1 n)))))
 
 (defun <-bin-list (seq)
     ;; convert a list of binary digits into an integer
     (if seq
-        (+ (car seq) (* 2 (<-bin-list (cdr seq))))
+        (| (car seq) (<<1 (<-bin-list (cdr seq))))
         0))
 
 (defun +bin3 (a b c)
