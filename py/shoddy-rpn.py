@@ -1,4 +1,5 @@
 import shoddylisp
+shoddylisp.DEBUG = True
 
 try:
     shoddylisp.global_env.update({
@@ -7,7 +8,7 @@ try:
     })
     shoddylisp.eval_string("""((lambda ()
     ; Terms are tuples of (coefficient symbol power)
-    (set! ->term (lambda (s)
+    (defun ->term (s)
         ; there will be at most one pronumeral.
         (if
             (and 
@@ -16,17 +17,17 @@ try:
             ; pronumeral
             (tuple (->int 1) s (->int 1))
             ; number
-            (tuple (->int s) (quote "") (->int 0)))))
+            (tuple (->int s) (quote "") (->int 0))))
     ; Operations always operate on lists of terms.
     (set! operations (dict-new))
     (dict-set operations (quote "+") (lambda (a b)
         ; 'a and 'b are both lists of terms.
-        (set! group-like-terms (lambda (term term-list)
+        (defun group-like-terms (term term-list)
             (if
                 (contains
-                    (map (lambda (t) (index t 2)) term-list)
+                    (map1 (lambda (t) (index t 2)) term-list)
                     (index term 2))
-                (map
+                (map1
                     (lambda (t)
                         (tuple
                             (if (= (index t 2) (index term 2))
@@ -35,44 +36,45 @@ try:
                             (index t 1)
                             (index t 2)))
                     term-list)
-                (cons term term-list))))
+                (cons term term-list)))
         (filter
-            (lambda (t) (not (= 0 (index t 0))))
-            (foldl group-like-terms (append a b) (quote ())))))
+            (lambda (t) (and t (not (= 0 (index t 0)))))
+            (foldl group-like-terms (append a b) nil))))
     (dict-set operations (quote "-") (lambda (a b)
         ((dict-get operations (quote "+"))
             a
-            (map (lambda (t)
+            (map1 (lambda (t)
                 (tuple (- 0 (index t 0)) (index t 1) (index t 2)))
                 b))))
     (dict-set operations (quote "*") (lambda (a b)
-        (set! multiply-terms (lambda (t1 t2)
+        (defun multiply-terms (t1 t2)
             (tuple
                 (* (index t1 0) (index t2 0))
                 (if (= (index t1 1) (quote ""))
                     (index t2 1)
                     (index t1 1))
-                (+ (index t1 2) (index t2 2)))))
+                (+ (index t1 2) (index t2 2))))
         ((dict-get operations (quote "+"))
-            (cons (tuple (->int 0) (quote "") (->int 0)) (quote ()))
+            (cons (tuple (->int 0) (quote "") (->int 0)) nil)
             ; ^ add 0 to result to group like terms ^
             (foldl
                 append
-                (map
+                (map1
                     (lambda (left-term)
-                        (map
+                        (map1
                             (lambda (right-term)
                                 (multiply-terms left-term right-term))
                             b))
                     a)
-                (quote ())))))
+                nil))))
     (dict-set operations (quote "^") (lambda (a b)
         ; It's guaranteed that 'b is a singleton list with (b0, "", 0)
         (foldl
             (dict-get operations (quote "*"))
-            (map (lambda (unused) a) (range 0 (index (car b) 0)))
-            (cons (tuple (->int 1) (quote "") (->int 0)) (quote ())))))
-    (set! eval-rpn (lambda (rpn stack)
+            (map1 (lambda (unused) a) (range 0 (index (car b) 0)))
+            (cons (tuple (->int 1) (quote "") (->int 0)) nil))))
+    (defun eval-rpn (rpn stack)
+        ;(print rpn stack)
         (if (= 0 (length rpn))
             stack
             (eval-rpn
@@ -82,8 +84,8 @@ try:
                         ((dict-get operations (car rpn))
                             (car (cdr stack)) (car stack))
                         (cdr (cdr stack)))
-                    (cons (cons (->term (car rpn)) (quote ())) stack))))))
-    (set! term->string (lambda (term)
+                    (cons (cons (->term (car rpn)) nil) stack)))))
+    (defun term->string (term)
         (+
             (if (and (= (index term 0) (- 0 1)) (> (index term 2) 0))
                 (quote "-")
@@ -101,20 +103,21 @@ try:
                     (index term 1)
                     (if (> (index term 2) 1)
                         (+ (quote "^") (->str (index term 2)))
-                        (quote "")))))))
-    (set! expr->string (lambda (term-list)
+                        (quote ""))))))
+    (defun expr->string (term-list)
         (if (= (length term-list) 0)
             (quote "0")
             (str-replace
                 (delimit
-                    (map term->string
+                    (map1 term->string
                         (qsort
                             (lambda (t1 t2) (> (index t1 2) (index t2 2)))
                             term-list))
                     (quote " + "))
                 (quote "+ -")
-                (quote "- ")))))
-    (print (expr->string (car (eval-rpn ext-rpn (quote ())))))
+                (quote "- "))))
+    (print (eval-rpn ext-rpn nil))
+    (print (expr->string (car (eval-rpn ext-rpn nil))))
     ))""")
 except Exception as e:
     print(f"An error occurred: {e}")
