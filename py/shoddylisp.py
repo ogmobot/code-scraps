@@ -389,6 +389,15 @@ eval_string("""
                             (cdr params))
                         nil))))))
 
+(defmacro let (params &body)
+    (cons
+        (cons
+            (quote lambda)
+            (cons
+                (map1 car params)
+                body))
+        (map1 cadr params)))
+
 (defun cadr (a)
     (car (cdr a)))
 
@@ -412,6 +421,7 @@ eval_string("""
         (cons (mapfn (car mapseq)) (map1 mapfn (cdr mapseq)))))
 
 (defun map (mapfn &mapseqs)
+    ;; really should use apply here instead of eval...
     (if (foldl or (map1 null? mapseqs) False)
         nil
         (cons

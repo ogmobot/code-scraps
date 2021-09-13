@@ -26,19 +26,17 @@ shoddylisp.eval_string("""
         ((and (= a 1) (= b 1) (= c 1)) (quote (1 1)))))
 
 (defun sum-lists-carry (list-a list-b carry)
-    (set! sum-carry
-        (+bin3
-            (if list-a (car list-a) 0)
-            (if list-b (car list-b) 0)
-            carry))
-    (cons
-        (car sum-carry)
-        (if (and (null? list-a) (null? list-b))
-            (cdr sum-carry)
-            (sum-lists-carry
-                (if list-a (cdr list-a) nil)
-                (if list-b (cdr list-b) nil)
-                (cadr sum-carry)))))
+    (let ((sum-carry (+bin3 (if list-a (car list-a) 0)
+                            (if list-b (car list-b) 0)
+                            carry)))
+        (cons
+            (car sum-carry)
+            (if (and (null? list-a) (null? list-b))
+                (cdr sum-carry)
+                (sum-lists-carry
+                    (if list-a (cdr list-a) nil)
+                    (if list-b (cdr list-b) nil)
+                    (cadr sum-carry))))))
 
 (defun +. (int-a int-b)
    (<-bin-list
