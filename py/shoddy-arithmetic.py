@@ -3,8 +3,8 @@ import shoddylisp
 shoddylisp.global_env.update({
     shoddylisp.Symbol("<<1"):   (lambda a: a << 1),
     shoddylisp.Symbol(">>1"):   (lambda a: a >> 1),
-    shoddylisp.Symbol("&1"):  (lambda a: a & 1),
-    shoddylisp.Symbol("|"):    (lambda a, b: a | b),
+    shoddylisp.Symbol("&1"):    (lambda a: a & 1),
+    shoddylisp.Symbol("|"):     (lambda a, b: a | b),
 })
 
 shoddylisp.eval_string("""
