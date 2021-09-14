@@ -1,5 +1,4 @@
 import shoddylisp
-shoddylisp.DEBUG = True
 
 try:
     shoddylisp.global_env.update({
@@ -38,7 +37,7 @@ try:
                     term-list)
                 (cons term term-list)))
         (filter
-            (lambda (t) (and t (not (= 0 (index t 0)))))
+            (lambda (t) (not (= 0 (index t 0))))
             (foldl group-like-terms (append a b) nil))))
     (dict-set operations (quote "-") (lambda (a b)
         ((dict-get operations (quote "+"))
@@ -74,7 +73,6 @@ try:
             (map1 (lambda (unused) a) (range 0 (index (car b) 0)))
             (cons (tuple (->int 1) (quote "") (->int 0)) nil))))
     (defun eval-rpn (rpn stack)
-        ;(print rpn stack)
         (if (= 0 (length rpn))
             stack
             (eval-rpn
@@ -116,7 +114,6 @@ try:
                     (quote " + "))
                 (quote "+ -")
                 (quote "- "))))
-    (print (eval-rpn ext-rpn nil))
     (print (expr->string (car (eval-rpn ext-rpn nil))))
     ))""")
 except Exception as e:

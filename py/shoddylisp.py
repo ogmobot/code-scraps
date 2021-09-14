@@ -1,4 +1,5 @@
 import random
+DEBUG = False
 class Symbol:
     def __init__(self, name):
         self.name = name
@@ -12,13 +13,19 @@ class Symbol:
     def __repr__(self):
         return self.name
 
+class Env(dict):
+    def __init__(self, outer=None):
+        self.outer = outer
+
 class Procedure:
-    def __init__(self, arg_names, body):
+    def __init__(self, arg_names, body, env):
         self.arg_names = arg_names
         self.body = body
+        self.env = env
     def __call__(self, args, parent_env):
-        env = {"parent_env": parent_env}
+        env = Env(self.env)
         env.update(self.args_env(args))
+        #env.outer = parent_env
         retval = [evaluate(b, env) for b in self.body].pop()
         # TODO tail recursion
         return retval
@@ -227,13 +234,14 @@ def find_in_env(symbol, env):
     if symbol in env:
         #print(f"{symbol}={env[symbol]}")
         return env[symbol]
-    elif "parent_env" in env:
-        return find_in_env(symbol, env["parent_env"])
+    elif env.outer:
+        return find_in_env(symbol, env.outer)
     else:
         print(f"Can't find {symbol} in environment!")
         return None
 
-global_env = {
+global_env = Env()
+global_env.update({
     Symbol("+"):        (lambda a, b: a+b),
     Symbol("-"):        (lambda a, b: a-b),
     Symbol("*"):        (lambda a, b: a*b),
@@ -288,11 +296,14 @@ global_env = {
     # random methods
     Symbol("random-choice"):
                         (lambda s: random.choice(s)),
-}
+})
 
 def evaluate(x, env=global_env):
-    #print(f"evaluating {x}")
-    #print(f"{[tuple(pair) for pair in env.items() if pair[0]!='parent_env']}")
+    if DEBUG:
+        print(f"evaluating {x}")
+        if env!=global_env:
+            print("\n  ".join(str(tuple(pair))
+                for pair in env.items()))
     if type(x) == Lisped_list:
         if x[0] == Symbol("if"):
             if evaluate(x[1], env):
@@ -307,9 +318,9 @@ def evaluate(x, env=global_env):
             env.update({x[1]: result})
             return result
         elif x[0] == Symbol("lambda"):
-            return Procedure(x[1], x[2:])
+            return Procedure(x[1], x[2:], env)
         elif x[0] == Symbol("macro"):
-            return Macro(x[1], x[2:])
+            return Macro(x[1], x[2:], env)
         elif x[0] == Symbol("quote"):
             return x[1]
         elif x[0] == Symbol("eval"):
@@ -468,10 +479,17 @@ eval_string("""
     (if (null? qseq)
         nil
         (append
-            (qsort qcmp (filter (lambda (x) (qcmp x (car qseq))) (cdr qseq)))
-            (cons
-                (car qseq)
-                (qsort qcmp (filter (lambda (x) (not (qcmp x (car qseq)))) (cdr qseq)))))))
+            (qsort
+                qcmp
+                (filter
+                    (lambda (q) (qcmp q (car qseq)))
+                    (cdr qseq)))
+            (cons (car qseq) nil)
+            (qsort
+                qcmp
+                (filter
+                    (lambda (q) (not (qcmp q (car qseq))))
+                    (cdr qseq))))))
 
 (defun delimit (seq delimiter)
     (if (= (length seq) 1)
