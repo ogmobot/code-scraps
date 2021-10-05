@@ -28,7 +28,7 @@ bool allowed(uint8_t * puzzle, uint8_t index, uint8_t val) {
         i++
     )
         if (puzzle[i] == val) return false;
-    /* Check row contains no instances of this value */
+    /* Check column contains no instances of this value */
     for (uint8_t i = celref(0, col_of(index)); i < 81; i += 9)
         if (puzzle[i] == val) return false;
     /* Check square contains no instances of this value */

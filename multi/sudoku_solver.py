@@ -42,9 +42,9 @@ def main():
     # function expects uint8_t*
     puzzles = load_puzzles("puzzles.txt")
     solution = Puzzle_Grid()
-    for i, tup in enumerate(puzzles):
-        c_lib.solve(tup[1], solution)
-        print(tup[0])
+    for title, grid in puzzles:
+        c_lib.solve(grid, solution)
+        print(title)
         print_sudoku(solution)
 
 if __name__ == "__main__":
