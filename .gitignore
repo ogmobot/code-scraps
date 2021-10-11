@@ -1,3 +1,5 @@
 **/connection_status*.csv
 /files/*
 *.so
+/cr/shard.lock
+/cr/lib/*
