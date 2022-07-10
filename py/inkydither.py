@@ -12,8 +12,6 @@ if IS_INKY:
 else:
     display = inky.inky_uc8159.Inky()
 
-mtgi.DEBUG = True
-
 def dither(orig, display):
     img = PIL.Image.new("RGB", orig.size)
     img.paste(orig)
@@ -27,25 +25,13 @@ def dither(orig, display):
     return dithered.convert("RGBA")
 
 if random.choice([True, False]):
-    c = mtgi.random_card_data("has:ft unique:art")
-    c["image"] = dither(c["image"], display)
-    img_alpha = mtgi.captioned_image(c)
+    img_alpha = mtgi.random_flavour_text()
 else:
-    fortune = subprocess.Popen(["fortune", "-s"], stdout=subprocess.PIPE)
-    (output, err) = fortune.communicate()
-    fortune.wait()
-    text = output.decode()
-    print("Fortune:")
-    print(text)
-    for a, b in [("\n\t", "\a"), ("\t", "  "), ("\n", " "), ("\a", "\n  ")]:
-        text = text.replace(a, b)
-    c = mtgi.random_card_data("t:basic unique:art")
-    c["image"] = dither(c["image"], display)
-    c["text"] = text
-    img_alpha = mtgi.captioned_image(c)
+    img_alpha = mtgi.random_fortune()
 
 img = PIL.Image.new("RGB", img_alpha.size)
 img.paste(img_alpha)
+img = dither(img, display)
 
 if IS_INKY:
     display.set_image(img.convert("P"))
