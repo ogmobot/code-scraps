@@ -9,6 +9,7 @@ import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageFont
 import random
+import subprocess
 
 SCRYFALL_API = "https://api.scryfall.com/"
 JSON_LOCATION = os.path.join(os.environ["HOME"], ".mtg-inspirational")
@@ -103,6 +104,7 @@ def wrap_text(text, width):
     return lines
 
 def captioned_image(image_dict):
+    print(f"Captioning card: \"{image_dict.get('name', '???')}\"")
     # base = image_dict["image"].convert("RGBA")
     orig = image_dict["image"].convert("RGBA")
     base = crop_to_size(orig, (640, 400))
@@ -123,19 +125,36 @@ def basic_with_overlay(text):
     c = random_card_data("t:basic unique:art")
     c["text"] = text
     img = captioned_image(c)
-    os.mkdir(JSON_LOCATION)
+    #os.mkdir(JSON_LOCATION)
     with open(f"{JSON_LOCATION}/temp.png", "wb") as f:
         img.save(f)
+    #img.show()
 
 def random_flavour_text():
     c = random_card_data("has:ft unique:art")
-    out = captioned_image(c)
+    img = captioned_image(c)
+    #os.mkdir(JSON_LOCATION)
     with open(f"{JSON_LOCATION}/temp.png", "wb") as f:
-        out.save(f)
-    #out.show()
+        img.save(f)
+    #img.show()
+
+def random_fortune():
+    '''
+    Use the `fortune -s` command and place the output on a basic land.
+    '''
+    fortune = subprocess.Popen(["fortune", "-s"], stdout=subprocess.PIPE)
+    (output, err) = fortune.communicate()
+    fortune.wait()
+    text = output.decode()
+    print("Fortune:")
+    print(text)
+    for a, b in [("\n\t", "\a"), ("\t", "  "), ("\n", " "), ("\a", "\n  ")]:
+        text = text.replace(a, b)
+    basic_with_overlay(text)
 
 def main():
-    random_flavour_text()
+    random_fortune()
+    #random_flavour_text()
 
 if __name__ == "__main__":
     main()
