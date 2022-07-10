@@ -10,6 +10,7 @@ import PIL.ImageDraw
 import PIL.ImageFont
 import random
 import subprocess
+import hitherdither
 
 SCRYFALL_API = "https://api.scryfall.com/"
 JSON_LOCATION = os.path.join(os.environ["HOME"], ".mtg-inspirational")
@@ -18,6 +19,7 @@ FONT_LOCATION = "/usr/share/fonts/truetype/liberation/LiberationMono-Bold.ttf"
 DEBUG = False
 SOLID_BLACK = (0, 0, 0, 255)
 SOLID_WHITE = (255, 255, 255, 255)
+SHADOW_OFFSET = 2
 
 def get_random_card(scryfall_args):
     params = urllib.parse.urlencode({"q": scryfall_args})
@@ -115,9 +117,9 @@ def captioned_image(image_dict):
     caption = image_dict["text"]
     caption = "\n".join(wrap_text(caption, 56)) # trial and error - 18pt LiberationMono Bold, 640px
     artist_text = f"\"{image_dict['name']}\", illus. {image_dict['artist']}"
-    d.multiline_text((txt.width // 2 + 1, txt.height // 3 + 1), caption, fill=SOLID_BLACK, anchor="mm", font=caption_font)
+    d.multiline_text((txt.width // 2 + SHADOW_OFFSET, txt.height // 3 + SHADOW_OFFSET), caption, fill=SOLID_BLACK, anchor="mm", font=caption_font)
     d.multiline_text((txt.width // 2, txt.height // 3), caption, fill=SOLID_WHITE, anchor="mm", font=caption_font)
-    d.text((txt.width - 9, txt.height - 9), artist_text, fill=SOLID_BLACK, anchor="rs", font=artist_font)
+    d.text((txt.width - 10 + SHADOW_OFFSET, txt.height - 10 + SHADOW_OFFSET), artist_text, fill=SOLID_BLACK, anchor="rs", font=artist_font)
     d.text((txt.width - 10, txt.height - 10), artist_text, fill=SOLID_WHITE, anchor="rs", font=artist_font)
     return PIL.Image.alpha_composite(base, txt)
 
@@ -125,18 +127,14 @@ def basic_with_overlay(text):
     c = random_card_data("t:basic unique:art")
     c["text"] = text
     img = captioned_image(c)
-    #os.mkdir(JSON_LOCATION)
-    with open(f"{JSON_LOCATION}/temp.png", "wb") as f:
-        img.save(f)
-    #img.show()
+    #with open(f"{JSON_LOCATION}/temp.png", "wb") as f:
+        #img.save(f)
+    return img
 
 def random_flavour_text():
     c = random_card_data("has:ft unique:art")
     img = captioned_image(c)
-    #os.mkdir(JSON_LOCATION)
-    with open(f"{JSON_LOCATION}/temp.png", "wb") as f:
-        img.save(f)
-    #img.show()
+    return img
 
 def random_fortune():
     '''
@@ -153,8 +151,11 @@ def random_fortune():
     basic_with_overlay(text)
 
 def main():
-    random_fortune()
-    #random_flavour_text()
+    #img = random_fortune()
+    img = random_flavour_text()
+    #with open(f"{JSON_LOCATION}/temp.png", "wb") as f:
+        #img.save(f)
+    img.show()
 
 if __name__ == "__main__":
     main()
