@@ -148,7 +148,7 @@ def random_fortune():
     print(text)
     for a, b in [("\n\t", "\a"), ("\t", "  "), ("\n", " "), ("\a", "\n  ")]:
         text = text.replace(a, b)
-    basic_with_overlay(text)
+    return basic_with_overlay(text)
 
 def main():
     #img = random_fortune()
