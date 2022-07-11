@@ -23,14 +23,15 @@ def dither(orig, display):
 
     #dithered = hitherdither.ordered.bayer.bayer_dithering(img, palette, thresholds, order=8)
     #dithered = hitherdither.ordered.cluster.cluster_dot_dithering(img, palette, thresholds, order=8)
-    dithered = hitherdither.diffusion.error_diffusion_dithering(img, palette, method="stucki", order=2) # unoptimized!
+    dithered = hitherdither.diffusion.error_diffusion_dithering(img, palette, method="floyd-steinberg", order=1) # slow!
+    #dithered = hitherdither.ordered.yliluoma.yliluomas_1_ordered_dithering(img, palette, order=8) # slow!
     print(f"Done (took {round(time.time() - start_time, 2)} s).")
     return dithered
 
 if random.choice([True, False]):
     img_alpha = mtgi.random_flavour_text()
 else:
-    img_alpha = mtgi.random_fortune()
+    img_alpha = mtgi.random_fortune_default_wrap()
 
 img = dither(img_alpha, display)
 

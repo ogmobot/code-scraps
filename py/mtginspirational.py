@@ -15,11 +15,14 @@ import hitherdither
 SCRYFALL_API = "https://api.scryfall.com/"
 JSON_LOCATION = os.path.join(os.environ["HOME"], ".mtg-inspirational")
 FONT_LOCATION = "/usr/share/fonts/truetype/liberation/LiberationMono-Bold.ttf"
+FONT_PX_PER_PT = 0.625 # trial and error
 # If True, fetch a local image instead of hitting scryfall API
 DEBUG = False
 SOLID_BLACK = (0, 0, 0, 255)
 SOLID_WHITE = (255, 255, 255, 255)
 SHADOW_OFFSET = 2
+IMAGE_WIDTH = 640
+IMAGE_HEIGHT = 400
 
 def get_random_card(scryfall_args):
     params = urllib.parse.urlencode({"q": scryfall_args})
@@ -105,17 +108,20 @@ def wrap_text(text, width):
             lines.append(" ".join(line))
     return lines
 
-def captioned_image(image_dict):
+def captioned_image(image_dict, caption_size=18, artist_size=14):
     print(f"Captioning card: \"{image_dict.get('name', '???')}\"")
     # base = image_dict["image"].convert("RGBA")
     orig = image_dict["image"].convert("RGBA")
-    base = crop_to_size(orig, (640, 400))
+    base = crop_to_size(orig, (IMAGE_WIDTH, IMAGE_HEIGHT))
     txt = PIL.Image.new("RGBA", base.size, (255, 255, 255, 0))
-    caption_font = PIL.ImageFont.truetype(FONT_LOCATION, 18)
-    artist_font = PIL.ImageFont.truetype(FONT_LOCATION, 14)
+    caption_font = PIL.ImageFont.truetype(FONT_LOCATION, caption_size)
+    artist_font = PIL.ImageFont.truetype(FONT_LOCATION, artist_size)
     d = PIL.ImageDraw.Draw(txt)
     caption = image_dict["text"]
-    caption = "\n".join(wrap_text(caption, 56)) # trial and error - 18pt LiberationMono Bold, 640px
+    caption = "\n".join(
+        wrap_text(
+            caption,
+            IMAGE_WIDTH / (FONT_PX_PER_PT * caption_size)))
     artist_text = f"\"{image_dict['name']}\", illus. {image_dict['artist']}"
     d.multiline_text((txt.width // 2 + SHADOW_OFFSET, txt.height // 3 + SHADOW_OFFSET), caption, fill=SOLID_BLACK, anchor="mm", font=caption_font)
     d.multiline_text((txt.width // 2, txt.height // 3), caption, fill=SOLID_WHITE, anchor="mm", font=caption_font)
@@ -123,36 +129,58 @@ def captioned_image(image_dict):
     d.text((txt.width - 10, txt.height - 10), artist_text, fill=SOLID_WHITE, anchor="rs", font=artist_font)
     return PIL.Image.alpha_composite(base, txt)
 
-def basic_with_overlay(text):
-    c = random_card_data("t:basic unique:art")
+def land_with_overlay(text, size=18):
+    c = random_card_data("t:land unique:art")
     c["text"] = text
-    img = captioned_image(c)
+    img = captioned_image(c, size)
     #with open(f"{JSON_LOCATION}/temp.png", "wb") as f:
         #img.save(f)
     return img
 
-def random_flavour_text():
+def random_flavour_text(size=18):
     c = random_card_data("has:ft unique:art")
-    img = captioned_image(c)
+    img = captioned_image(c, size)
     return img
 
-def random_fortune():
+def random_fortune(size=18):
     '''
     Use the `fortune -s` command and place the output on a basic land.
     '''
-    fortune = subprocess.Popen(["fortune", "-s"], stdout=subprocess.PIPE)
+    fortune = subprocess.Popen(
+        ["fortune", "-s", "-n", "400"],
+        stdout=subprocess.PIPE)
     (output, err) = fortune.communicate()
     fortune.wait()
     text = output.decode()
     print("Fortune:")
     print(text)
+    # attempt to remove line wrapping...
     for a, b in [("\n\t", "\a"), ("\t", "  "), ("\n", " "), ("\a", "\n  ")]:
         text = text.replace(a, b)
-    return basic_with_overlay(text)
+    return land_with_overlay(text, size)
+
+def random_fortune_default_wrap():
+    '''
+    As `random_fortune` above, but don't change wrapping.
+    Modify text size to fit image.
+    '''
+    fortune = subprocess.Popen(
+        ["fortune", "-s", "-n", str(6 * 80)], # Could be >6 lines if short
+        stdout=subprocess.PIPE)
+    (output, err) = fortune.communicate()
+    fortune.wait()
+    text = output.decode().replace("\t", "    ")
+    print("Fortune:")
+    print(text)
+    longest_line = max(len(line) for line in text.split("\n"))
+    return land_with_overlay(
+        text,
+        int(IMAGE_WIDTH / (longest_line * FONT_PX_PER_PT)))
 
 def main():
     #img = random_fortune()
-    img = random_flavour_text()
+    img = random_fortune_default_wrap()
+    #img = random_flavour_text(18)
     #with open(f"{JSON_LOCATION}/temp.png", "wb") as f:
         #img.save(f)
     img.show()
