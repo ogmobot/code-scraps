@@ -1,6 +1,13 @@
 #!/bin/python3
 
-import requests, sys, argparse, os, ast
+import sys
+import os
+import ast
+import argparse
+import urllib.request
+import urllib.parse
+import http
+import json
 SCRYFALL_API = "https://api.scryfall.com/"
 CACHE_LOCATION = os.environ["HOME"] + "/.mtgfetch"
 global _DEBUG
@@ -19,16 +26,16 @@ def get_card(cardname):
         card = ast.literal_eval(f.read())
         f.close()
     else:
-        payload = {"fuzzy":cardname}
-        r = requests.get(SCRYFALL_API + "cards/named", params=payload)
-        if r.status_code == requests.codes.ok:
-            card = r.json()
+        params = urllib.parse.urlencode({"fuzzy": cardname})
+        r = urllib.request.urlopen(f"{SCRYFALL_API}cards/named?{params}")
+        if r.status == http.HTTPStatus.OK:
+            card = json.loads(r.read().decode("utf-8"))
         else:
             # The "Splinter" vs "Splinter Twin" case
-            payload = {"exact":cardname}
-            r = requests.get(SCRYFALL_API + "cards/named",params=payload)
-            if r.status_code == requests.codes.ok:
-                card = r.json()
+            params = urllib.parse.urlencode({"exact": cardname})
+            r = urllib.request.urlopen(f"{SCRYFALL_API}cards/named?{params}")
+            if r.status_code == http.HTTPStatus.OK:
+                card = json.loads(r.read().decode("utf-8"))
             else:
                 card = None
         if card and ("name" in card):
