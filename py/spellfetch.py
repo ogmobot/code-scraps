@@ -2,7 +2,8 @@
 
 import os       # to access the cache location
 import sys      # for access to stdin, stdout and stderr
-import requests # for HTTPS requests to the API
+import urllib.request  # for HTTPS requests to the API
+import http     # ditto
 import json     # for dumping and loading JSON
 import argparse # for command line arguments
 import html     # for escape characters in format_html
@@ -62,9 +63,9 @@ def get_spell(spellname):
         with open(CACHE_LOCATION+cleanname_generic+".json", "r") as f:
             spell = json.load(f)
     else:
-        r = requests.get(DND_API + "spells/" + cleanname_generic)
-        if r.status_code == requests.codes.ok:
-            spell = r.json()
+        r = urllib.request.urlopen(DND_API + "spells/" + cleanname_generic)
+        if r.status == http.HTTPStatus.OK:
+            spell = json.loads(r.read().decode("utf-8"))
         if spell:
             with open(CACHE_LOCATION+cleanname_generic+".json", "w") as f:
                 json.dump(spell, f)
