@@ -20,7 +20,7 @@ FONT_PX_PER_PT = 0.625 # trial and error
 DEBUG = False
 SOLID_BLACK = (0, 0, 0, 255)
 SOLID_WHITE = (255, 255, 255, 255)
-SHADOW_OFFSET = 2
+SHADOW_OFFSET = 1
 IMAGE_WIDTH = 640
 IMAGE_HEIGHT = 400
 
@@ -50,7 +50,9 @@ def random_card_data(scryfall_args):
     if DEBUG: return debug_card
     c = get_random_card(scryfall_args)
     if "card_faces" in c:
-        c = random.choice(c["card_faces"])
+        face = random.choice(c["card_faces"])
+        face["set"] = face.get("set", c.get("set"))
+        c = face
     try:
         return {
             "name": c.get("name", "") + " (" + c.get("set", "").upper() + ")",
@@ -178,12 +180,15 @@ def random_fortune_default_wrap():
         int(IMAGE_WIDTH / (longest_line * FONT_PX_PER_PT)))
 
 def main():
-    #img = random_fortune()
+    img = random_fortune()
+    img.show()
+
     img = random_fortune_default_wrap()
+    img.show()
+
     #img = random_flavour_text(18)
     #with open(f"{JSON_LOCATION}/temp.png", "wb") as f:
         #img.save(f)
-    img.show()
 
 if __name__ == "__main__":
     main()
