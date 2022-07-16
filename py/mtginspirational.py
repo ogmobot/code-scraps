@@ -10,7 +10,6 @@ import PIL.ImageDraw
 import PIL.ImageFont
 import random
 import subprocess
-import hitherdither
 
 SCRYFALL_API = "https://api.scryfall.com/"
 JSON_LOCATION = os.path.join(os.environ["HOME"], ".mtg-inspirational")
@@ -42,7 +41,7 @@ def random_card_data(scryfall_args):
     }
     '''
     debug_card = {
-            "name": "Mana Leak (Eighth Edition)",
+            "name": "Mana Leak (8ED)",
             "image": PIL.Image.open(f"{JSON_LOCATION}/mana-leak.jpg"),
             "artist": "Christopher Rush",
             "text": "The fatal flaw in every plan is the assumption that you know more than your enemy."
@@ -51,7 +50,7 @@ def random_card_data(scryfall_args):
     c = get_random_card(scryfall_args)
     if "card_faces" in c:
         face = random.choice(c["card_faces"])
-        face["set"] = face.get("set", c.get("set"))
+        face["set"] = face.get("set", c.get("set", "???"))
         c = face
     try:
         return {
