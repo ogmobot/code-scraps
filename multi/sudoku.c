@@ -41,7 +41,7 @@ bool allowed(uint8_t * puzzle, uint8_t index, uint8_t val) {
     return true;
 }
 
-void solve(uint8_t * puzzle, uint8_t * solution) {
+bool solve(uint8_t * puzzle, uint8_t * solution) {
     /* Solve puzzle and write solution to buffer.
      * `puzzle` and `solution` should be uint8_t arrays of length 81.
      * Mangles the `puzzle` buffer.
@@ -51,13 +51,17 @@ void solve(uint8_t * puzzle, uint8_t * solution) {
             for (uint8_t val = 1; val <= 9; val++)
                 if (allowed(puzzle, i, val)) {
                     puzzle[i] = val;
-                    solve(puzzle, solution);
+                    if (solve(puzzle, solution)) {
+                        return true; /* No need to keep searching */
+                    }
                     puzzle[i] = 0;
                 }
-            return;
+            return false; /* This blank cell cannot be filled */
         }
-    /* No blank cells found -- this is a solution */
+    /* No blank cells found -- this is a solution.
+     * Return true so the caller knows to stop here.
+     */
     copy_array(puzzle, solution);
-    return;
+    return true;
 }
 
