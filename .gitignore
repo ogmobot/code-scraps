@@ -3,3 +3,4 @@
 *.so
 /cr/shard.lock
 /cr/lib/*
+*/__pycache__/*
