@@ -148,7 +148,7 @@ def random_fortune(size=18):
     Use the `fortune -s` command and place the output on a basic land.
     '''
     fortune = subprocess.Popen(
-        ["fortune", "-s", "-n", "400"],
+        ["/usr/games/fortune", "-s", "-n", "400"],
         stdout=subprocess.PIPE)
     (output, err) = fortune.communicate()
     fortune.wait()
@@ -166,7 +166,7 @@ def random_fortune_default_wrap():
     Modify text size to fit image.
     '''
     fortune = subprocess.Popen(
-        ["fortune", "-s", "-n", str(6 * 80)], # Could be >6 lines if short
+        ["/usr/games/fortune", "-s", "-n", str(6 * 80)], # Could be >6 lines if short
         stdout=subprocess.PIPE)
     (output, err) = fortune.communicate()
     fortune.wait()

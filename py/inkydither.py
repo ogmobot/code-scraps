@@ -23,9 +23,10 @@ def dither(orig, display):
     return dithered
 
 def main():
+    AUTO_SETUP = False
     IS_INKY = False
 
-    if IS_INKY:
+    if AUTO_SETUP:
         display = inky.auto(verbose=True)
     else:
         display = inky.inky_uc8159.Inky()
