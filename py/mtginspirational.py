@@ -19,7 +19,7 @@ FONT_PX_PER_PT = 0.625 # trial and error
 DEBUG = False
 SOLID_BLACK = (0, 0, 0, 255)
 SOLID_WHITE = (255, 255, 255, 255)
-SHADOW_OFFSET = 1
+OUTLINE_WIDTH = 2
 IMAGE_WIDTH = 640
 IMAGE_HEIGHT = 400
 
@@ -124,10 +124,16 @@ def captioned_image(image_dict, caption_size=18, artist_size=14):
             caption,
             IMAGE_WIDTH / (FONT_PX_PER_PT * caption_size)))
     artist_text = f"\"{image_dict['name']}\", illus. {image_dict['artist']}"
-    d.multiline_text((txt.width // 2 + SHADOW_OFFSET, txt.height // 3 + SHADOW_OFFSET), caption, fill=SOLID_BLACK, anchor="mm", font=caption_font)
-    d.multiline_text((txt.width // 2, txt.height // 3), caption, fill=SOLID_WHITE, anchor="mm", font=caption_font)
-    d.text((txt.width - 10 + SHADOW_OFFSET, txt.height - 10 + SHADOW_OFFSET), artist_text, fill=SOLID_BLACK, anchor="rs", font=artist_font)
-    d.text((txt.width - 10, txt.height - 10), artist_text, fill=SOLID_WHITE, anchor="rs", font=artist_font)
+    d.multiline_text(
+        (txt.width // 2, txt.height // 3), caption,
+        fill=SOLID_WHITE, stroke_fill=SOLID_BLACK, stroke_width=OUTLINE_WIDTH,
+        anchor="mm", font=caption_font
+    )
+    d.text(
+        (txt.width - 10, txt.height - 10), artist_text,
+        fill=SOLID_WHITE, stroke_fill=SOLID_BLACK, stroke_width=OUTLINE_WIDTH,
+        anchor="rs", font=artist_font
+    )
     return PIL.Image.alpha_composite(base, txt)
 
 def land_with_overlay(text, size=18):
