@@ -1,5 +1,0 @@
-Mox Lotus	{15}
-Artifact
-{T}: Add {∞} to your mana pool.
-{100}: Add one mana of any color to your mana pool.
-You don't lose life due to mana burn.
