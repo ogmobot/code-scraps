@@ -13,11 +13,12 @@ for m_types in MINERAL_CATS.values():
 MOON_IDS = dict()
     
 def read_moon_file(fp):
-    # returns {"moon name": {"id": int, "mineral name": qty, "mineral name": qty}, ...}
+    # returns {"moon name": {"mineral name": qty, "mineral name": qty}, ...}
     result = defaultdict(dict)
     moon_name = None
     for line in fp:
         if line.startswith("Moon"):
+            # header
             continue
         elif line.startswith("\t"):
             # data line
