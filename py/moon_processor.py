@@ -73,10 +73,20 @@ def blank_unneeded_lines(table):
         to_string   = to_string[colwidth + 1:]
     return table
 
+def format_legend():
+    lines = [
+        f"{cat}: {', '.join(minerals)}"
+        for cat, minerals in MINERAL_CATS.items()
+    ]
+    return "\n".join(lines)
+
 data = defaultdict(dict)
 while True:
-    fn = input("Filename: ")
-    if not fn:
+    try:
+        fn = input("Filename: ")
+        if not fn:
+            break
+    except EOFError:
         break
     try:
         with open(fn) as fp:
@@ -87,3 +97,4 @@ while True:
         print("File not found.")
 
 print(blank_unneeded_lines(format_moon_data(data)))
+print(format_legend())
