@@ -1,4 +1,5 @@
 from collections import defaultdict
+import sys
 
 MINERAL_CATS = {
      "R4": ["Bitumens",  "Coesite",   "Sylvite",    "Zeolites"],
@@ -12,11 +13,11 @@ for m_types in MINERAL_CATS.values():
     ALL_NAMES = ALL_NAMES.union(m_types)
 MOON_IDS = dict()
     
-def read_moon_file(fp):
+def read_moon_file(lines):
     # returns {"moon name": {"mineral name": qty, "mineral name": qty}, ...}
     result = defaultdict(dict)
     moon_name = None
-    for line in fp:
+    for line in lines:
         if line.startswith("Moon"):
             # header
             continue
@@ -32,6 +33,8 @@ def read_moon_file(fp):
     return result
 
 def format_moon_data(data):
+    if not data:
+        raise ValueError("no valid moon data found")
     moon_name_len = max(len(moon) for moon in data.keys())
     lines = [" "*moon_name_len + "| R4 | R8 | R16| R32| R64|"]
     header = "="*moon_name_len + "|"
@@ -40,7 +43,7 @@ def format_moon_data(data):
         header += "|"
     lines.append(header)
     for moon, minerals in sorted(data.items(), key=lambda x: MOON_IDS[x[0]]):
-        assert all(mineral in ALL_NAMES for mineral in minerals), minerals
+        assert all(mineral in ALL_NAMES for mineral in minerals), f"unknown mineral in {minerals}"
         row_string = moon
         while len(row_string) < moon_name_len:
             row_string += " "
@@ -80,21 +83,39 @@ def format_legend():
     ]
     return "\n".join(lines)
 
-data = defaultdict(dict)
-while True:
-    try:
-        fn = input("Filename: ")
-        if not fn:
-            break
-    except EOFError:
-        break
-    try:
-        with open(fn) as fp:
-            new_data = read_moon_file(fp)
-        for moon, minerals in new_data.items():
-            data[moon].update(minerals)
-    except FileNotFoundError:
-        print("File not found.")
+def get_input_lines():
+    lines = []
+    if len(sys.argv) > 1:
+        for fn in sys.argv[1:]:
+            try:
+                with open(fn) as fp:
+                    lines.extend(fp.readlines())
+            except FileNotFoundError:
+                sys.stderr.write(f"File not found: {fn}\n")
+    else:
+        # Read lines from stdin
+        sys.stderr.write("Reading from standard input. (Ctrl+D to finish.)\n")
+        while True:
+            try:
+                line = input()
+                if "." in line and "\t0." not in line: # Assume filename
+                    try:
+                        with open(line) as fp:
+                            lines.extend(fp.readlines())
+                    except FileNotFoundError:
+                        sys.stderr.write(f"File not found: {line}\n")
+                else:
+                    lines.append(line)
+            except EOFError:
+                break
+    return lines
 
-print(blank_unneeded_lines(format_moon_data(data)))
-print(format_legend())
+if __name__ == "__main__":
+    lines = get_input_lines()
+    try:
+        data = read_moon_file(lines)
+        print(blank_unneeded_lines(format_moon_data(data)))
+        print(format_legend())
+    except Exception as err:
+        print(f"An error occurred: {err}")
+        print("Are you sure the data is in the right format?")
