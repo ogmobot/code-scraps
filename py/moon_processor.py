@@ -13,7 +13,7 @@ for m_types in MINERAL_CATS.values():
     ALL_NAMES = ALL_NAMES.union(m_types)
 MOON_IDS = dict()
     
-def read_moon_file(lines):
+def read_moon_file(lines: list[str]) -> dict[str, dict[str,int]]:
     # returns {"moon name": {"mineral name": qty, "mineral name": qty}, ...}
     result = defaultdict(dict)
     moon_name = None
@@ -32,7 +32,7 @@ def read_moon_file(lines):
             moon_name = line.strip()
     return result
 
-def format_moon_data(data):
+def format_moon_data(data: dict[str, dict[str, int]]) -> str:
     if not data:
         raise ValueError("no valid moon data found")
     moon_name_len = max(len(moon) for moon in data.keys())
@@ -64,7 +64,7 @@ def format_moon_data(data):
     lines.append("="*moon_name_len + "==========================")
     return "\n".join(lines)
 
-def blank_unneeded_lines(table):
+def blank_unneeded_hyphens(table: str) -> str:
     # Turns |1234|----|1234|----| into |1234|----|1234|    |
     ncols = 4
     colwidth = 4
@@ -76,14 +76,14 @@ def blank_unneeded_lines(table):
         to_string   = to_string[colwidth + 1:]
     return table
 
-def format_legend():
+def format_legend() -> str:
     lines = [
         f"{cat}: {', '.join(minerals)}"
         for cat, minerals in MINERAL_CATS.items()
     ]
     return "\n".join(lines)
 
-def get_input_lines():
+def get_input_lines() -> list[str]:
     lines = []
     if len(sys.argv) > 1:
         for fn in sys.argv[1:]:
@@ -114,7 +114,7 @@ if __name__ == "__main__":
     lines = get_input_lines()
     try:
         data = read_moon_file(lines)
-        print(blank_unneeded_lines(format_moon_data(data)))
+        print(blank_unneeded_hyphens(format_moon_data(data)))
         print(format_legend())
     except Exception as err:
         print(f"An error occurred: {err}")
